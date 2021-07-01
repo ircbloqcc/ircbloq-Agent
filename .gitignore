@@ -1,0 +1,13 @@
+# npm file
+node_modules/
+
+# Temporary resource
+extensions/
+tools/
+devices/
+
+# Build dist
+dist/
+
+# Mac
+.DS_Store
