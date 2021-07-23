@@ -1,13 +1,17 @@
 const { app, BrowserWindow, ipcMain, nativeImage } = require('electron');
 const path = require('path');
+const os =require('os');
 const electron = require('electron');
 const IrcBloqLink = require('ircbloq-link');
-const IrcBloqDevice = require('ircbloq-device');
-const IrcBloqExtension = require('ircbloq-extension');
 
+//const IrcBloqDevice = require('ircbloq-device');
+//const IrcBloqExtension = require('ircbloq-extension');
+const IrcbloqResourceServer =require('ircbloq-resource');
+const {execFile, spawn, execSync} = require('child_process');
 const fs = require('fs');
 const compareVersions = require('compare-versions');
 const del = require('del');
+const {productName, version} = require('../package.json')
 
 const Menu = electron.Menu;
 const Tray = electron.Tray;
@@ -31,15 +35,15 @@ function createWindow() {
 
     mainWindow.loadFile('./src/index.html');
     mainWindow.setMenu(null)
-    
-    const userDataPath = electron.app.getPath('userData');
-    console.log('userDataPath: ', userDataPath);
+
+    const userDataPath = app.getPath(
+        'userData'
+    );
     const dataPath = path.join(userDataPath, 'Data');
 
     const appPath = app.getAppPath();
 
     const appVersion = app.getVersion();
-    console.log('Current version: ', appVersion);
 
     // if current version is newer then cache log, delet the data cache dir and write the
     // new version into the cache file.
@@ -59,6 +63,13 @@ function createWindow() {
         fs.writeFileSync(applicationConfig, JSON.stringify({version: appVersion}));
     }
 
+    let resourcePath;
+    if (appPath.search(/app.asar/g) === -1) {
+        resourcePath = path.join(appPath, 'external-resources');
+    } else { // eslint-disable-line no-negated-condition
+        resourcePath = path.join(appPath, '../external-resources');
+    }
+
     let toolsPath;
     if (appPath.search(/app.asar/g) === -1) {
         toolsPath = path.join(appPath, "tools");
@@ -68,28 +79,33 @@ function createWindow() {
     const link = new IrcBloqLink(dataPath, toolsPath);
     link.listen();
 
-    let extensionsPath;
-    if (appPath.search(/app.asar/g) === -1) {
-        extensionsPath = path.join(appPath, "extensions");
-    } else {
-        extensionsPath = path.join(appPath, "../extensions");
-    }
-    const extension = new IrcBloqExtension(dataPath, extensionsPath);
-    extension.listen();
-
-    let devicesPath;
-    if (appPath.search(/app.asar/g) === -1) {
-        devicesPath = path.join(appPath, "devices");
-    } else {
-        devicesPath = path.join(appPath, "../devices");
-    }
-    const device = new IrcBloqDevice(dataPath, devicesPath);
-    device.listen();
+    // start resource server
+    resourceServer = new IrcbloqResourceServer(dataPath, resourcePath);
+    resourceServer.listen();
 
     const trayMenuTemplate = [
         {
-            label: 'help',
-            click: function () {}
+            label: 'Go to Online IrcBloqV4',
+            click: function () {
+              if ((os.platform() === 'win32')) {
+                 execSync('start https://ircbloqcc.github.io/ircbloq/');
+             } else if ((os.platform() === 'darwin')) {
+                 execSync('open https://ircbloqcc.github.io/ircbloq/');
+             }
+            }
+        },
+        {
+          label: 'Install Driver',
+          click: function(){
+            const driverPath = path.join(resourcePath, '../drivers');
+            if ((os.platform() === 'win32') && (os.arch() === 'x64')) {
+                execFile('install_x64.bat', [], {cwd: driverPath});
+            } else if ((os.platform() === 'win32') && (os.arch() === 'ia32')) {
+                execFile('install_x86.bat', [], {cwd: driverPath});
+            } else if ((os.platform() === 'darwin')) {
+                spawn('sh', ['install.sh'], {shell: true, cwd: driverPath});
+            }
+          }
         },
         {
             label: 'exit',
@@ -100,18 +116,18 @@ function createWindow() {
         }
         // TODO: Add a button to clear cthe cache in app path.
     ];
- 
+
     appTray = new Tray(nativeImage.createFromPath(path.join(__dirname, './icon/IrcBloq-Link.ico')));
     const contextMenu = Menu.buildFromTemplate(trayMenuTemplate);
     appTray.setToolTip('IrcBloq Link');
     appTray.setContextMenu(contextMenu);
-    
+
     appTray.on('click',function(){
         mainWindow.show();
     })
 
-    mainWindow.on('close', (event) => { 
-        mainWindow.hide(); 
+    mainWindow.on('close', (event) => {
+        mainWindow.hide();
         event.preventDefault();
     });
 
@@ -131,7 +147,7 @@ if (!gotTheLock) {
       mainWindow.show()
     }
   })
-  
+
   app.on('ready', createWindow);
 }
 
@@ -145,4 +161,5 @@ app.on('activate', function () {
     if (mainWindow === null) {
         createWindow();
     }
+
 })

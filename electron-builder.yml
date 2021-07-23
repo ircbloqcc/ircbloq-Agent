@@ -1,10 +1,10 @@
 directories:
   buildResources: buildResources
   output: dist
-extraResources: ["tools", "extensions", "devices"]
+extraResources: ["tools", "external-resources",'firmwares','drivers']
 
-appId: 'ircbloq.cc.ircbloq-link-desktop'
-productName: "IrcBloq Link"
+appId: 'ircbloq.cc.ircbloqv4-link-desktop'
+productName: "IrcBloqV4 Link"
 publish: # empty provider list = don't publish
 
 win:
@@ -20,7 +20,8 @@ win:
 nsis:
   oneClick: false # allow user to choose per-user or per-machine
   allowToChangeInstallationDirectory: true
-  artifactName: "IrcBloq Link ${version} Setup.${ext}"
+  include: buildResources/installer.nsh
+  artifactName: "IrcBloqV4 Link ${version} Setup.${ext}"
 
 mac:
   category: public.app-category.education
@@ -34,15 +35,15 @@ mac:
   hardenedRuntime: true
   icon: buildResources/ScratchDesktop.icns
   provisioningProfile: embedded.provisionprofile
-  artifactName: "IrcBloq Link ${version}.${ext}"
+  artifactName: "IrcBloqV4 Link ${version}.${ext}"
   target:
     - dmg
-    - mas
+#    - mas
 dmg:
   title: "IrcBloq Link ${version}"
-mas:
-  category: public.app-category.education
-  entitlements: buildResources/entitlements.mas.plist
-  entitlementsInherit: buildResources/entitlements.mas.inherit.plist
-  hardenedRuntime: false
-  icon: buildResources/ScratchDesktop.icns
+#mas:
+#  category: public.app-category.education
+#  entitlements: buildResources/entitlements.mas.plist
+#  entitlementsInherit: buildResources/entitlements.mas.inherit.plist
+#  hardenedRuntime: false
+#  icon: buildResources/ScratchDesktop.icns

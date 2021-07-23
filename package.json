@@ -1,19 +1,29 @@
 {
   "name": "ircbloq-link-desktop",
   "productName": "Ircbloq Link",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "IrcBloq link desktop",
   "main": "src/index.js",
   "scripts": {
-    "postinstall": "electron-builder install-app-deps && npm run cpdevice && npm run cpext && npm run cptools",
-    "cpdevice": "cpy ./ ../../../devices --parents --cwd=./node_modules/ircbloq-device/src",
-    "cpext": "cpy ./ ../../../extensions --parents --cwd=./node_modules/ircbloq-extension/src",
-    "cptools": "cpy ./ ../../../tools --parents --cwd=./node_modules/ircbloq-link/tools",
+    "postinstall": "electron-builder install-app-deps && npm run clean && npm run compile && npm run fetch:all",
+    "clean": "rimraf ./dist ./external-resources ./tools ./firmwares ./drivers",
     "start": "electron .",
-    "build": "npm run build:pack",
+    "compile": "mkdirp ./dist",
+    "i18n:src": "mkdirp translations/core && format-message extract --out-file translations/core/en.json src/**.js",
+    "i18n:push": "tx-push-src ircbloq-editor linkDesktop translations/core/en.json",
+    "fetch:drivers": "rimraf ./drivers && node scripts/download-driver.js",
+    "fetch:exts": "rimraf ./external-resources && node ./node_modules/ircbloq-resource/script/download.js",
+    "fetch:firmwares": "rimraf ./firmwares && node ./node_modules/ircbloq-link/script/download-firmwares.js",
+    "fetch:tools": "rimraf ./tools && node ./node_modules/ircbloq-link/script/download-tools.js",
+    "fetch:all": "npm run fetch:drivers && npm run fetch:exts && npm run fetch:firmwares && npm run fetch:tools",
+    "build": "npm run build:dev",
     "build:pack": "electron-builder --dir",
-    "build:dist": "npm run cpdevice && npm run cpext && npm run cptools && electron-builder",
-    "clean": "rimraf dist devices extensions tools",
+    "build:dev": "npm run compile && npm run doBuild -- --mode=dev",
+    "build:dir": "npm run compile && npm run doBuild -- --mode=dir",
+    "build:dist": "npm run compile && npm run doBuild -- --mode=dist",
+    "doBuild": "node ./scripts/electron-builder-wrapper.js",
+    "dist": "npm run clean && npm run compile && npm run fetch:all && npm run doBuild -- --mode=dist",
+    "distDev": "npm run clean && npm run compile && npm run fetch:all && npm run doBuild -- --mode=dev",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -26,7 +36,7 @@
     "scratch3.0",
     "desktop"
   ],
-  "author": "IrcBloq Team",
+  "author": "iRoboChakra",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/ircbloqcc/ircbloq-link-desktop/issues"
@@ -35,14 +45,20 @@
   "dependencies": {
     "compare-versions": "^3.6.0",
     "del": "^6.0.0",
-    "ircbloq-device": "0.1.0-prerelease.20210328115506",
-    "ircbloq-extension": "0.1.0-prerelease.20210329032033",
-    "ircbloq-link": "0.1.0-prerelease.20210326122102"
+    "ircbloq-link": "latest",
+    "ircbloq-resource": "latest"
   },
   "devDependencies": {
     "cpy-cli": "^3.1.1",
+    "download-github-release": "^0.3.2",
     "electron": "^8.5.5",
-    "electron-builder": "^22.9.1",
+    "electron-builder": "^22.11.8",
+    "electron-devtools-installer": "^3.0.0",
+    "electron-notarize": "^0.3.0",
+    "electron-store": "^5.1.1",
+    "ircbloq-l10n": "latest",
+    "mkdirp": "^1.0.4",
+    "os-locale": "^5.0.0",
     "rimraf": "^3.0.2"
   }
 }
