@@ -33,7 +33,7 @@ mac:
         This app requires microphone access when recording sounds or detecting loudness.
   gatekeeperAssess: true
   hardenedRuntime: true
-  icon: buildResources/ScratchDesktop.icns
+  icon: buildResources/IrcBloq-Link.icns
   provisioningProfile: embedded.provisionprofile
   artifactName: "IrcBloqV4 Link ${version}.${ext}"
   target:
