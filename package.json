@@ -5,10 +5,10 @@
   "description": "IrcBloq link desktop",
   "main": "src/index.js",
   "scripts": {
-    "postinstall": "electron-builder install-app-deps && npm run clean && npm run compile && npm run fetch:all",
+    "postinstall": "electron-builder install-app-deps",
     "clean": "rimraf ./dist ./external-resources ./tools ./firmwares ./drivers",
     "start": "electron .",
-    "compile": "mkdirp ./dist",
+    "compile": "mkdirp ./dist && npm run clean && npm run fetch:all",
     "i18n:src": "mkdirp translations/core && format-message extract --out-file translations/core/en.json src/**.js",
     "i18n:push": "tx-push-src ircbloq-editor linkDesktop translations/core/en.json",
     "fetch:drivers": "rimraf ./drivers && node scripts/download-driver.js",
@@ -28,7 +28,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ircbloqcc/ircbloq-link-desktop.git"
+    "url": "git+https://github.com/ircbloqcc/external-resource.git"
   },
   "keywords": [
     "ircbloq",
@@ -45,6 +45,7 @@
   "dependencies": {
     "compare-versions": "^3.6.0",
     "del": "^6.0.0",
+    "electron-updater": "^4.3.9",
     "ircbloq-link": "latest",
     "ircbloq-resource": "latest"
   },
