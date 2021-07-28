@@ -126,6 +126,14 @@
       cclearButton.classList.remove('hidden');
       notification.classList.remove('hidden');
     });
+
+    ipcRenderer.on('clear_cache', () => {
+      ipcRenderer.removeAllListeners('error');
+      message.innerText = 'Are you Sure to Reset now?';
+      cclearButton.classList.remove('hidden');
+      notification.classList.remove('hidden');
+    });
+
     function closeNotification() {
       notification.classList.add('hidden');
     }
