@@ -194,6 +194,13 @@ function createWindow() {
       }
     },
     {
+      label: 'Clear Cache',
+      click:function(){
+        mainWindow.webContents.send('clear_cache');
+      }
+
+    },
+    {
       label: 'exit',
       click: function() {
         appTray.destroy();
