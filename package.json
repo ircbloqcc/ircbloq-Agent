@@ -8,7 +8,7 @@
     "postinstall": "electron-builder install-app-deps",
     "clean": "rimraf ./dist ./external-resources ./tools ./firmwares ./drivers",
     "start": "electron .",
-    "compile": "mkdirp ./dist && npm run clean && npm run fetch:all",
+    "compile": "mkdirp",
     "i18n:src": "mkdirp translations/core && format-message extract --out-file translations/core/en.json src/**.js",
     "i18n:push": "tx-push-src ircbloq-editor linkDesktop translations/core/en.json",
     "fetch:drivers": "rimraf ./drivers && node scripts/download-driver.js",
