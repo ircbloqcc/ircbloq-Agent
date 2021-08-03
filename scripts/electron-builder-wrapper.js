@@ -70,6 +70,9 @@ const runBuilder = function (wrapperConfig, target) {
     if (!wrapperConfig.doPackage) {
         allArgs.push('--dir', '--c.compression=store');
     }
+	if (wrapperConfig.arch === 'ia32') {
+        allArgs.push('--ia32');
+    }
     allArgs = allArgs.concat(wrapperConfig.builderArgs);
     console.log(`running electron-builder with arguments: ${allArgs}`);
     const result = spawnSync('electron-builder', allArgs, {
@@ -97,14 +100,14 @@ const runBuilder = function (wrapperConfig, target) {
 const calculateTargets = function (wrapperConfig) {
     const masDevProfile = 'mas-dev.provisionprofile';
     const availableTargets = {
-        //macAppStore: {
-        //    name: 'mas',
-        //    platform: 'darwin'
-        //},
-        //macAppStoreDev: {
-        //    name: 'mas-dev',
-        ///    platform: 'darwin'
-        //},
+        macAppStore: {
+            name: 'mas',
+            platform: 'darwin'
+        },
+        macAppStoreDev: {
+            name: 'mas-dev',
+            platform: 'darwin'
+        },
         macDirectDownload: {
             name: 'dmg',
             platform: 'darwin'
@@ -114,7 +117,7 @@ const calculateTargets = function (wrapperConfig) {
         //     platform: 'win32'
         // },
         windowsDirectDownload: {
-            name: 'nsis:ia32',   //default is nsis is 64bit, nsis:ia32 is for 32bit application
+            name: 'nsis',
             platform: 'win32'
         }
     };
@@ -131,17 +134,17 @@ const calculateTargets = function (wrapperConfig) {
         // Seems like a bug in electron-builder...
         // Running the 'mas' build first means that its output is available while we wait for 'dmg' notarization.
         // Add macAppStoreDev here to test a MAS-like build locally. You'll need a Mac Developer provisioning profile.
-       // if (fs.existsSync(masDevProfile)) {
-        //    targets.push(availableTargets.macAppStoreDev);
-        //} else {
-        //    console.log(`skipping target "${availableTargets.macAppStoreDev.name}": ${masDevProfile} missing`);
-       // }
-       // if (wrapperConfig.doSign) {
-        //    targets.push(availableTargets.macAppStore);
-        //} else {
+        if (fs.existsSync(masDevProfile)) {
+            targets.push(availableTargets.macAppStoreDev);
+        } else {
+            console.log(`skipping target "${availableTargets.macAppStoreDev.name}": ${masDevProfile} missing`);
+        }
+        if (wrapperConfig.doSign) {
+            targets.push(availableTargets.macAppStore);
+        } else {
             // electron-builder doesn't seem to support this configuration even if mac.type is "development"
-        //    console.log(`skipping target "${availableTargets.macAppStore.name}" because code-signing is disabled`);
-        //}
+            console.log(`skipping target "${availableTargets.macAppStore.name}" because code-signing is disabled`);
+        }
         targets.push(availableTargets.macDirectDownload);
         break;
     default:
@@ -154,11 +157,15 @@ const parseArgs = function () {
     const scriptArgs = process.argv.slice(2); // remove `node` and `this-script.js`
     const builderArgs = [];
     let mode = 'dev'; // default
+    let arch = null;
 
     for (const arg of scriptArgs) {
         const modeSplit = arg.split(/--mode(\s+|=)/);
+        const archSplit = arg.split(/--arch(\s+|=)/);
         if (modeSplit.length === 3) {
             mode = modeSplit[2];
+        } else if (archSplit.length === 3) {
+            arch = archSplit[2];
         } else {
             builderArgs.push(arg);
         }
@@ -178,14 +185,16 @@ const parseArgs = function () {
         break;
     case 'dist':
         doPackage = true;
-        doSign = true;
+        // doSign = true; // skip code signing before getting a certificate
+        doSign = false;
     }
 
     return {
         builderArgs,
         doPackage, // false = build to directory
         doSign,
-        mode
+        mode,
+        arch
     };
 };
 

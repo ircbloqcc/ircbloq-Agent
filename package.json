@@ -1,7 +1,7 @@
 {
   "name": "ircbloq-link-desktop",
-  "productName": "Ircbloq Link",
-  "version": "1.0.1",
+  "productName": "IrcbloqV4 Link",
+  "version": "4.0.4",
   "description": "IrcBloq link desktop",
   "main": "src/index.js",
   "scripts": {
@@ -22,13 +22,15 @@
     "build:dir": "npm run compile && npm run doBuild -- --mode=dir",
     "build:dist": "npm run compile && npm run doBuild -- --mode=dist",
     "doBuild": "node ./scripts/electron-builder-wrapper.js",
+	"build:dist32": "npm run compile && npm run doBuild -- --mode=dist --arch=ia32",
     "dist": "npm run clean && npm run compile && npm run fetch:all && npm run doBuild -- --mode=dist",
+	"dist32": "npm run clean && npm run compile && npm run fetch:all32 && npm run doBuild -- --mode=dist --arch=ia32",
     "distDev": "npm run clean && npm run compile && npm run fetch:all && npm run doBuild -- --mode=dev",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ircbloqcc/external-resource.git"
+    "url": "git+https://github.com/ircbloqcc/ircbloq-link-desktop.git"
   },
   "keywords": [
     "ircbloq",

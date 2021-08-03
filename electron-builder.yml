@@ -21,7 +21,7 @@ nsis:
   oneClick: false # allow user to choose per-user or per-machine
   allowToChangeInstallationDirectory: true
   include: buildResources/installer.nsh
-  artifactName: "IrcBloqV4 Link ${version} Setup.${ext}"
+  artifactName: "IrcBloqV4-Link ${version} Setup.${ext}"
 
 mac:
   category: public.app-category.education
@@ -35,12 +35,12 @@ mac:
   hardenedRuntime: true
   icon: buildResources/IrcBloq-Link.icns
   provisioningProfile: embedded.provisionprofile
-  artifactName: "IrcBloqV4 Link ${version}.${ext}"
+  artifactName: "IrcBloqV4-Link ${version}.${ext}"
   target:
     - dmg
 #    - mas
 dmg:
-  title: "IrcBloq Link ${version}"
+  title: "IrcBloqV4-Link ${version}"
 #mas:
 #  category: public.app-category.education
 #  entitlements: buildResources/entitlements.mas.plist
