@@ -16,6 +16,7 @@
     "fetch:firmwares": "rimraf ./firmwares && node ./node_modules/ircbloq-link/script/download-firmwares.js",
     "fetch:tools": "rimraf ./tools && node ./node_modules/ircbloq-link/script/download-tools.js",
     "fetch:all": "npm run fetch:drivers && npm run fetch:exts && npm run fetch:firmwares && npm run fetch:tools",
+	"fetch:all32": "npm run fetch:drivers && npm run fetch:exts && npm run fetch:firmwares && npm run fetch:tools -- --arch=ia32",
     "build": "npm run build:dev",
     "build:pack": "electron-builder --dir",
     "build:dev": "npm run compile && npm run doBuild -- --mode=dev",
