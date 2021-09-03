@@ -1,7 +1,7 @@
 {
   "name": "ircbloq-link-desktop",
   "productName": "IrcbloqV4 Link",
-  "version": "4.0.4",
+  "version": "4.1.0",
   "description": "IrcBloq link desktop",
   "main": "src/index.js",
   "scripts": {
