@@ -1,33 +1,30 @@
 {
   "name": "ircbloq-link-desktop",
-  "productName": "IrcbloqV4 Link",
-  "version": "4.1.0",
-  "description": "IrcBloq link desktop",
+  "productName": "ircBloqV4-Link",
+  "version": "4.1.2",
+  "description": "IrcBloqV4 link desktop",
   "main": "src/index.js",
+  "author": "iRobochakra Team",
+  "license": "MIT",
   "scripts": {
+	"preinstall": "npx npm-force-resolutions",
     "postinstall": "electron-builder install-app-deps",
-    "clean": "rimraf ./dist ./external-resources ./tools ./firmwares ./drivers",
-    "start": "electron .",
-    "compile": "mkdirp",
-    "i18n:src": "mkdirp translations/core && format-message extract --out-file translations/core/en.json src/**.js",
-    "i18n:push": "tx-push-src ircbloq-editor linkDesktop translations/core/en.json",
+    "i18n:src": "mkdirp translations && format-message extract --out-file translations/en.json src/**.js",
+    "i18n:push": "tx-push-src ircbloq-editor link-desktop translations/en.json",
     "fetch:drivers": "rimraf ./drivers && node scripts/download-driver.js",
     "fetch:exts": "rimraf ./external-resources && node ./node_modules/ircbloq-resource/script/download.js",
     "fetch:firmwares": "rimraf ./firmwares && node ./node_modules/ircbloq-link/script/download-firmwares.js",
     "fetch:tools": "rimraf ./tools && node ./node_modules/ircbloq-link/script/download-tools.js",
     "fetch:all": "npm run fetch:drivers && npm run fetch:exts && npm run fetch:firmwares && npm run fetch:tools",
-	"fetch:all32": "npm run fetch:drivers && npm run fetch:exts && npm run fetch:firmwares && npm run fetch:tools -- --arch=ia32",
-    "build": "npm run build:dev",
+    "fetch:all32": "npm run fetch:drivers && npm run fetch:exts && npm run fetch:firmwares && npm run fetch:tools -- --arch=ia32",
+    "start": "electron .",
+    "build": "electron-builder",
     "build:pack": "electron-builder --dir",
-    "build:dev": "npm run compile && npm run doBuild -- --mode=dev",
-    "build:dir": "npm run compile && npm run doBuild -- --mode=dir",
-    "build:dist": "npm run compile && npm run doBuild -- --mode=dist",
-    "doBuild": "node ./scripts/electron-builder-wrapper.js",
-	"build:dist32": "npm run compile && npm run doBuild -- --mode=dist --arch=ia32",
-    "dist": "npm run clean && npm run compile && npm run fetch:all && npm run doBuild -- --mode=dist",
-	"dist32": "npm run clean && npm run compile && npm run fetch:all32 && npm run doBuild -- --mode=dist --arch=ia32",
-    "distDev": "npm run clean && npm run compile && npm run fetch:all && npm run doBuild -- --mode=dev",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dist": "npm run clean && npm run fetch:all && electron-builder",
+    "dist32": "npm run clean && npm run fetch:all32 && electron-builder --ia32",
+    "clean": "rimraf ./dist ./external-resources ./tools ./firmwares ./drivers",
+    "lint": "eslint ./src",
+    "test": ""
   },
   "repository": {
     "type": "git",
@@ -39,30 +36,33 @@
     "scratch3.0",
     "desktop"
   ],
-  "author": "iRoboChakra",
-  "license": "MIT",
   "bugs": {
     "url": "https://github.com/ircbloqcc/ircbloq-link-desktop/issues"
   },
   "homepage": "https://github.com/ircbloqcc/ircbloq-link-desktop#readme",
   "dependencies": {
-    "compare-versions": "^3.6.0",
     "del": "^6.0.0",
-    "electron-updater": "^4.3.9",
+    "electron-fetch": "^1.7.4",
+    "electron-progressbar": "^2.0.1",
+    "ircbloq-l10n": "latest",
     "ircbloq-link": "latest",
-    "ircbloq-resource": "latest"
+    "ircbloq-resource": "latest",
+    "os-locale": "^5.0.0",
+    "node-localstorage": "^2.2.1"
   },
   "devDependencies": {
-    "cpy-cli": "^3.1.1",
-    "download-github-release": "^0.3.2",
+    "babel-eslint": "^10.0.1",
+    "compare-versions": "^3.6.0",
     "electron": "^8.5.5",
-    "electron-builder": "^22.11.8",
-    "electron-devtools-installer": "^3.0.0",
-    "electron-notarize": "^0.3.0",
-    "electron-store": "^5.1.1",
-    "ircbloq-l10n": "latest",
-    "mkdirp": "^1.0.4",
-    "os-locale": "^5.0.0",
+    "electron-builder": "^22.9.1",
+    "eslint": "^5.16.0",
+    "eslint-config-scratch": "^5.0.0",
+    "format-message": "^6.2.3",
+    "format-message-cli": "^6.2.3",
     "rimraf": "^3.0.2"
+  },
+  "resolutions": {
+    "upath": "^1.0.5",
+    "usb": "^1.7.2"
   }
 }

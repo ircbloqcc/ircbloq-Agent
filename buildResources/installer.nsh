@@ -1,8 +1,34 @@
+!include x64.nsh
+!include LogicLib.nsh
+!include StrFunc.nsh
+${StrRep}
+
 !macro preInit
-  SetRegView 64
-  WriteRegExpandStr HKLM "${INSTALL_REGISTRY_KEY}" InstallLocation "C:\ircBloqV4-link"
-  WriteRegExpandStr HKCU "${INSTALL_REGISTRY_KEY}" InstallLocation "C:\Program Files\ircBloqV4-link"
-  SetRegView 32
-  WriteRegExpandStr HKLM "${INSTALL_REGISTRY_KEY}" InstallLocation "C:\ircBloqV4-link"
-  WriteRegExpandStr HKCU "${INSTALL_REGISTRY_KEY}" InstallLocation "C:\Program Files (x86)\ircBloqV4-link"
+
+    ${If} ${RunningX64}
+        SetRegView 64
+    ${EndIf}
+
+    ${StrRep} $0 "${UNINSTALL_REGISTRY_KEY}" "Software" "SOFTWARE"
+    ${StrRep} $1 "${INSTALL_REGISTRY_KEY}" "Software" "SOFTWARE"
+
+    ReadRegStr $R0 HKCU "$0" "UninstallString"
+    ReadRegStr $R1 HKCU "$1" "InstallLocation"
+
+    StrCmp $R0 "" 0 +4
+
+    ReadRegStr $R0 HKLM "$0" "UninstallString"
+    ReadRegStr $R1 HKLM "$1" "InstallLocation"
+
+    StrCmp $R0 "" 0 done
+    StrCmp $R1 "" 0 done
+
+    WriteRegExpandStr HKLM "${INSTALL_REGISTRY_KEY}" InstallLocation "C:\ircBloqV4-link"
+    WriteRegExpandStr HKCU "${INSTALL_REGISTRY_KEY}" InstallLocation "C:\ircBloqV4-link"
+
+done:
+    ${If} ${RunningX64}
+        SetRegView LastUsed
+    ${EndIf}
+
 !macroend

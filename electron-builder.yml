@@ -1,11 +1,31 @@
 directories:
   buildResources: buildResources
   output: dist
-extraResources: ["tools", "external-resources",'firmwares','drivers']
+extraResources: ["tools", "external-resources", 'firmwares', "statics", "drivers"]
 
-appId: 'ircbloq.cc.ircbloqv4-link-desktop'
-productName: "IrcBloqV4 Link"
+appId: 'ircbloq.cc.ircbloq-link'
+productName: "ircBloqV4-Link"
 publish: # empty provider list = don't publish
+
+mac:
+  category: public.app-category.education
+  entitlements: buildResources/entitlements.mac.plist
+  gatekeeperAssess: true
+  hardenedRuntime: true
+  icon: buildResources/IrcBloq-Link.icns
+  provisioningProfile: embedded.provisionprofile
+  artifactName: "ircBloqV4-Link ${version}.${ext}"
+  target:
+    - dmg
+    # - mas
+dmg:
+  title: "ircBloqV4-Link ${version}"
+# mas:
+#   category: public.app-category.education
+#   entitlements: buildResources/entitlements.mas.plist
+#   entitlementsInherit: buildResources/entitlements.mas.inherit.plist
+#   hardenedRuntime: false
+#   icon: buildResources/IrcBloq-Link.icns
 
 win:
   icon: buildResources/IrcBloq-Link.ico
@@ -16,34 +36,10 @@ win:
 #   identityName: IrcBloq.IrcBloqLinkDesktop
 #   publisherDisplayName: "IrcBloq"
 #   publisher: "CN=2EC43DF1-469A-4119-9AB9-568A0A1FF65F"
-#   artifactName: "IrcBloq Link Desktop ${version}.${ext}"
+#   artifactName: "ircBloqV4-Link Desktop ${version}.${ext}"
 nsis:
   oneClick: false # allow user to choose per-user or per-machine
   allowToChangeInstallationDirectory: true
   include: buildResources/installer.nsh
-  artifactName: "IrcBloqV4-Link ${version} Setup.${ext}"
-
-mac:
-  category: public.app-category.education
-  entitlements: buildResources/entitlements.mac.plist
-  extendInfo:
-    NSCameraUsageDescription: >-
-        This app requires camera access when taking a photo in the paint editor or using the video sensing blocks.
-    NSMicrophoneUsageDescription: >-
-        This app requires microphone access when recording sounds or detecting loudness.
-  gatekeeperAssess: true
-  hardenedRuntime: true
-  icon: buildResources/IrcBloq-Link.icns
-  provisioningProfile: embedded.provisionprofile
-  artifactName: "IrcBloqV4-Link ${version}.${ext}"
-  target:
-    - dmg
-#    - mas
-dmg:
-  title: "IrcBloqV4-Link ${version}"
-#mas:
-#  category: public.app-category.education
-#  entitlements: buildResources/entitlements.mas.plist
-#  entitlementsInherit: buildResources/entitlements.mas.inherit.plist
-#  hardenedRuntime: false
-#  icon: buildResources/ScratchDesktop.icns
+#   license: LICENSE
+  artifactName: "ircBloqV4-Link ${version} Setup.${ext}"

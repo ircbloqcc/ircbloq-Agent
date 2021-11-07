@@ -2,18 +2,18 @@
 <html>
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>IrcBloq Link</title>
+    <title>ircBloqV4-Link</title>
 
-  <link rel="stylesheet" type="text/css" href="index.css">
-  <style>
-    body {
+    <link rel="stylesheet" type="text/css" href="index.css">
+    <style>
+        body {
       background-color: #f90b9e;
     }
 
-    .splash {
+        .splash {
       color: white;
       font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
       font-size: xx-large;
@@ -24,127 +24,26 @@
       left: 50%;
       transform: translate(-50%, -50%);
     }
-
-    #notification {
-      color:#f90b9e ;
-      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-      font-size: medium;
-      position: fixed;
-      bottom: 20px;
-      left: 20px;
-      width: 200px;
-      padding: 20px;
-      border-radius: 5px;
-      background-color: white;
-      box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-    }
-
-    .hidden {
-      display: none;
-    }
-  </style>
+    </style>
 </head>
 
 <body>
-  <div class="app">
-    <div>
-      <img class="logo" alt="IrcBloq-Link logo" src="./icon/IrcBloq-Link.svg" />
+    <div class="app">
+        <div>
+            <img class="logo" alt="IrcBloq-Link.png" src="./icon/IrcBloq-Link.svg" />
+        </div>
+        <div class="info">
+            <h2 id="product-name">ircBloqV4-Link</h2>
+            <div class="version">
+                <div id="product-version">App Version 0.0.0</div>
+                <div id="resource-version">Resource Version 0.0.0</div>
+                <div class="component-version">
+                    <p id="electron-version">Electron 0.0.0</p>
+                    <p id="chrome-version">Chrome 00.0.0000.000</p>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="info">
-      <h2 id ="version"></h2>
-      <p id="r_version"></p>
-      <table>
-        <p class="small">Electron 11.1.0</p>
-      </table>
-    </div>
-    <div id="notification" class="hidden">
-      <p id="message"></p>
-      <button id="close-button" onClick="closeNotification()">
-        Close
-      </button>
-      <button id="restart-button" onClick="restartApp()" class="hidden">
-        Restart
-      </button>
-      <button id="cclear-button" onClick="clearCache()" class="hidden">
-        Reset all
-      </button>
-    </div>
-  </div>
-  <script>
-    const {
-      ipcRenderer
-    } = require('electron');
-    const r_version = document.getElementById('r_version');
-    const notification = document.getElementById('notification');
-    const message = document.getElementById('message');
-    const restartButton = document.getElementById('restart-button');
-    const cclearButton = document.getElementById('cclear-button');
-
-    ipcRenderer.send('app_version');
-    ipcRenderer.on('app_version', (event, arg) => {
-      ipcRenderer.removeAllListeners('app_version');
-      version.innerText = 'ircBloq Link  V' + arg.version;
-    });
-
-    ipcRenderer.send('r_version');
-    ipcRenderer.on('r_version', (event, arg) => {
-      ipcRenderer.removeAllListeners('r_version');
-      r_version.innerText = 'Resource Version  ' + arg.version;
-    });
-
-    ipcRenderer.on('update_available', () => {
-      ipcRenderer.removeAllListeners('update_available');
-      message.innerText = 'A new update is available.';
-      notification.classList.remove('hidden');
-    });
-
-    ipcRenderer.on('downloading', () => {
-      ipcRenderer.removeAllListeners('downloading');
-      message.innerText = 'New version available. Downloading...';
-      notification.classList.remove('hidden');
-    });
-    ipcRenderer.on('covering', () => {
-      ipcRenderer.removeAllListeners('covering');
-      message.innerText = 'Installing...';
-      notification.classList.remove('hidden');
-    });
-    ipcRenderer.on('no_update', () => {
-      ipcRenderer.removeAllListeners('no_update');
-      message.innerText = 'Version is up-to-date';
-      notification.classList.remove('hidden');
-    });
-    ipcRenderer.on('update_downloaded', () => {
-      ipcRenderer.removeAllListeners('update_downloaded');
-      message.innerText = 'Update Downloaded. It will be installed on restart. Restart now?';
-      restartButton.classList.remove('hidden');
-      notification.classList.remove('hidden');
-    });
-
-    ipcRenderer.on('err_update', () => {
-      ipcRenderer.removeAllListeners('error');
-      message.innerText = 'Error while Updating. Reset now?';
-      cclearButton.classList.remove('hidden');
-      notification.classList.remove('hidden');
-    });
-
-    ipcRenderer.on('clear_cache', () => {
-      ipcRenderer.removeAllListeners('error');
-      message.innerText = 'Are you Sure to Reset now?';
-      cclearButton.classList.remove('hidden');
-      notification.classList.remove('hidden');
-    });
-
-    function closeNotification() {
-      notification.classList.add('hidden');
-    }
-
-    function restartApp() {
-      ipcRenderer.send('restart_app');
-    }
-    function clearCache(){
-      ipcRenderer.send('cclear_app');
-    }
-  </script>
 </body>
 
 </html>
