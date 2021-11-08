@@ -160,7 +160,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.REPO_AUTH_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url:${{ steps.create_release.outputs.upload_url }}.replace("desktop", "releases")
           asset_path: ./ircBloqV4Link-win-x64.zip
           asset_name: ircBloqV4Link-${{ steps.package-version.outputs.current-version }}-win-x64.zip
           asset_content_type: application/zip
@@ -177,7 +177,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{ steps.create_release.outputs.upload_url }}.replace("desktop", "releases")
           asset_path: ./ircBloqV4Link-win-x86.zip
           asset_name: ircBloqV4Link-${{ steps.package-version.outputs.current-version }}-win-x86.zip
           asset_content_type: application/zip
@@ -194,7 +194,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{ steps.create_release.outputs.upload_url }}.replace("desktop", "releases")
           asset_path: ./ircBloqV4Link-mac.zip
           asset_name: ircBloqV4Link-${{ steps.package-version.outputs.current-version }}-mac.zip
           asset_content_type: application/zip
@@ -207,7 +207,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{ steps.create_release.outputs.upload_url }}.replace("desktop", "releases")
           asset_path: checksums.txt
           asset_name: ${{ steps.package-version.outputs.current-version }}-checksums-sha256.txt
           asset_content_type: application/zip
