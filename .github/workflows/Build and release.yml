@@ -132,6 +132,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.REPO_AUTH_TOKEN }}
         with:
+          repo: ircbloq-link-releases
           tag_name: ${{ steps.tag.outputs.tag }}
           release_name: ircBloqV4 Link ${{ steps.tag.outputs.tag }}
           body: |
@@ -147,14 +148,6 @@ jobs:
 
       - name: Download all build result
         uses: actions/download-artifact@v2
-      
-      - name: Relocating Releases repository
-        uses: mad9000/actions-find-and-replace-string@2
-        id: findandreplace
-        with:
-          source: ${{ steps.create_release.outputs.upload_url}}  
-          find: 'desktop'
-          replace: 'releases'               
 
       # Windows x64 Release
       - name: Zip win x64 file
