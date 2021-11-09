@@ -184,7 +184,7 @@ const checkUpdate = (alertLatest = true) => {
 
 const checkMainUpdate = (alertLatest = true) => {
     let data = '';
-		const request = fetch('https://api.github.com/repos/ircbloqcc/ircbloq-releases/releases/latest')
+		const request = fetch('https://api.github.com/repos/ircbloqcc/ircbloq-link-releases/releases/latest')
 		.then(res => res.json())
 		.then(json => {
 		 if(json.tag_name){
