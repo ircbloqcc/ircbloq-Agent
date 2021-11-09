@@ -144,8 +144,8 @@ jobs:
               2. Second Change
           draft: true
           prerelease: false
-          owner: ircbloqcc
-          repo: ircbloq-link-releases
+          owner: "ircbloqcc"
+          repo: "ircbloq-link-releases"
 
       - name: Download all build result
         uses: actions/download-artifact@v2
