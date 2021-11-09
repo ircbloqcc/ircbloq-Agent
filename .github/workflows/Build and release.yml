@@ -132,7 +132,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.REPO_AUTH_TOKEN }}
         with:
-          repo: ircbloq-link-releases
           tag_name: ${{ steps.tag.outputs.tag }}
           release_name: ircBloqV4 Link ${{ steps.tag.outputs.tag }}
           body: |
@@ -145,6 +144,8 @@ jobs:
               2. Second Change
           draft: true
           prerelease: false
+          owner: ircbloqcc
+          repo: ircbloq-link-releases
 
       - name: Download all build result
         uses: actions/download-artifact@v2
