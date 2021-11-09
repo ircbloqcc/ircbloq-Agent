@@ -164,7 +164,7 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./ircBloqV4Link-win-x64.zip
-          asset_name: ircBloqV4Link-${{ steps.package-version.outputs.current-version }}-win-x64.zip
+          asset_name: ircBloqV4Link-${{ steps.get_tag.outputs.tag }}-win-x64.zip
           asset_content_type: application/zip
 
       # Windows x86 Release
@@ -174,14 +174,14 @@ jobs:
             files: ircBloqV4Link-win-x86.exe
             dest: ircBloqV4Link-win-x86.zip
 
-      - name: Relase Windows x64 package
+      - name: Relase Windows x86 package
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./ircBloqV4Link-win-x86.zip
-          asset_name: ircBloqV4Link-${{ steps.package-version.outputs.current-version }}-win-x86.zip
+          asset_name: ircBloqV4Link-${{ steps.get_tag.outputs.tag }}-win-x86.zip
           asset_content_type: application/zip
 
       # Mac Release
@@ -198,7 +198,7 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./ircBloqV4Link-mac.zip
-          asset_name: ircBloqV4Link-${{ steps.package-version.outputs.current-version }}-mac.zip
+          asset_name: ircBloqV4Link-${{ steps.get_tag.outputs.tag }}-mac.zip
           asset_content_type: application/zip
 
       # Checksum Release
@@ -211,5 +211,5 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: checksums.txt
-          asset_name: ${{ steps.package-version.outputs.current-version }}-checksums-sha256.txt
+          asset_name: ${{ steps.get_tag.outputs.tag }}-checksums-sha256.txt
           asset_content_type: application/zip
