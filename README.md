@@ -5,7 +5,7 @@
 
 ircBloqv4 Link is an application that provides local hardware connection support for ircBloqV4 online web pages.
 
-![screenshot1](./docs/screenshot_1.png)
+![screenshot1](./docs/Screenshot_1.png)
 
 ## Getting Start
 
