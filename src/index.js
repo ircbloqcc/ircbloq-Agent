@@ -315,7 +315,7 @@ makeTrayMenu = (l, checkingUpdate = false) => [
             description: 'Menu item to install driver'
         }),
         click: () => {
-            const driverPath = path.join(resourcePath, '../drivers');
+            const driverPath = path.join(resourcePath, 'drivers');
         if ((os.platform() === 'win32') && (os.arch() === 'x64')) {
           execFile('install_x64.bat', [], {
             cwd: driverPath
