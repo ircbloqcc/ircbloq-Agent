@@ -442,7 +442,13 @@ const createWindow = () => {
 	const _config= fs.readFileSync(path.resolve(r_Path,"config.json"));
 	const r_version = JSON.parse(_config);
 
-    appTray = new Tray(nativeImage.createFromPath(path.join(__dirname, './icon/IrcBloq-Link.ico')));
+    if(process.platform !== 'darwin'){
+        appTray = new Tray(nativeImage.createFromPath(path.join(__dirname, './icon/IrcBloq-Link.ico')));
+    }
+    else{
+        appTray = new Tray(nativeImage.createFromPath(path.join(__dirname, './icon/IrcBloq-Link.png')));
+    }
+    
     appTray.setToolTip('Ircbloq Link');
     appTray.setContextMenu(Menu.buildFromTemplate(makeTrayMenu(locale)));
 
@@ -492,9 +498,7 @@ if (gotTheLock) {
 }
 
 app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') {
         app.quit();
-    }
 });
 
 app.on('activate', () => {
