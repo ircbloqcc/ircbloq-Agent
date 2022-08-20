@@ -4,7 +4,7 @@ const electron = require('electron');
 const path = require('path');
 const os = require('os');
 const {execFile,spawn,execSync} = require('child_process');
-const fs = require('fs');
+const fs = require('fs-extra');
 const compareVersions = require('compare-versions');
 const del = require('del');
 
@@ -63,10 +63,10 @@ const handleClickLanguage = l => {
 
 
 const checkUpdate = (alertLatest = true) => {
-    resourceServer.checkUpdate(locale)
+    resourceServer.checkUpdate()
         .then(info => {
             appTray.setContextMenu(Menu.buildFromTemplate(makeTrayMenu(locale, false)));
-            if (info) {
+            if (info.updateble) {
                 const rev = dialog.showMessageBoxSync({
                     type: 'question',
                     buttons: [
@@ -86,10 +86,11 @@ const checkUpdate = (alertLatest = true) => {
                         id: 'index.messageBox.newExternalResource',
                         default: 'New external resource version detected',
                         description: 'Label for new external resource version detected'
-                    })} : ${info.version}`,
+                    })}\n\n\n            Resource New Version: ${info.latestVersion}`,
                     // Use 100 spaces to prevent the message box from being collapsed
                     // under windows, making the message box very ugly.
-                    detail: `${' '.repeat(100)}\n${info.describe}`
+                    detail: ''//${' '.repeat(100)}\nResource Current Version: ${info.currentVersion}
+                    //\nResource New Version: ${info.latestVersion}`
                 });
                 if (rev === 1) {
                     const progressBarPhase = {
@@ -120,7 +121,7 @@ const checkUpdate = (alertLatest = true) => {
                         clearInterval(downloadInterval);
                     });
 
-                    resourceServer.upgrade(state => {
+                    resourceServer.update(state => {
                         if (state.phase === 'downloading') {
                             if (progressBar) {
                                 progressBar.value = progressBarPhase.downloading;
@@ -181,81 +182,9 @@ const checkUpdate = (alertLatest = true) => {
         });
 };
 
-
-const checkMainUpdate = (alertLatest = true) => {
-    let data = '';
-		const request = fetch('https://api.github.com/repos/ircbloqcc/ircbloq-link-releases/releases/latest')
-		.then(res => res.json())
-		.then(json => {
-		 if(json.tag_name){
-			console.log('New Update: ', json.body);
-			const latest = json.tag_name.replace('V', '');
-			
-			if (latest > version) {
-                const rev = dialog.showMessageBoxSync({
-                    type: 'question',
-                    buttons: [
-                        formatMessage({
-                            id: 'index.messageBox.upgradeLater',
-                            default: 'Upgrade later',
-                            description: 'Label in bottom to upgrade later'
-                        }),
-                        formatMessage({
-                            id: 'index.messageBox.downloadNewVersion',
-                            default: 'Download New Version',
-                            description: 'Label in botton to Download New Version'
-                        })
-                    ],
-                    defaultId: 1,
-                    message: `${formatMessage({
-                        id: 'index.messageBox.newExternalResource',
-                        default: 'New Version IrcBloq-Link detected',
-                        description: 'Label for new external resource version detected'
-                    })} : ${latest}`,
-                    // Use 100 spaces to prevent the message box from being collapsed
-                    // under windows, making the message box very ugly.
-                    detail: `${' '.repeat(100)}\n${json.body}`
-                });
-                if (rev === 1) {
-					if ((os.platform() === 'win32')) {
-                    execSync('start https://ircbloqcc.github.io/wiki/download-software/#ircbloqv4-link');
-				    } else if ((os.platform() === 'darwin')) {
-					execSync('open https://ircbloqcc.github.io/wiki/download-software/#ircbloqv4-link');
-				   }
-				}
-            } else if (alertLatest) {
-                dialog.showMessageBox({
-                    type: 'info',
-                    buttons: ['Ok'],
-                    message: formatMessage({
-                        id: 'index.messageBox.alreadyLatest',
-                        default: 'Already latest',
-                        description: 'Prompt for already latest'
-                    }),
-                    detail: formatMessage({
-                        id: 'index.messageBox.alreadyLatestVersion',
-                        default: 'You have installed latest version.',
-                        description: 'Prompt for external source is latest version'
-                    })
-                });
-            } else {
-        checkUpdate(alertLatest);
-		 }
-		 }
-		})
-        .catch(err => {
-            showOperationFailedMessageBox(err);
-        });
-};
-
 const handleClickCheckUpdate = () => {
     appTray.setContextMenu(Menu.buildFromTemplate(makeTrayMenu(locale, true)));
-    checkUpdate();
-};
-
-const handleClickCheckMainUpdate = () => {
-    appTray.setContextMenu(Menu.buildFromTemplate(makeTrayMenu(locale, false)));
-    checkMainUpdate();
+    checkUpdate(true);
 };
 
 makeTrayMenu = (l, checkingUpdate = false) => [
@@ -286,21 +215,13 @@ makeTrayMenu = (l, checkingUpdate = false) => [
         click: () => handleClickCheckUpdate()
     },
     {
-        label:  formatMessage({
-            id: 'index.menu.checkMainUpdate',
-            default: 'check Main update',
-            description: 'Menu item to check Main update'
-        }),
-        click: () => handleClickCheckMainUpdate()
-    },
-    {
         label: formatMessage({
             id: 'index.menu.clearCacheAndRestart',
             default: 'clear cache and restart',
             description: 'Menu item to clear cache and restart'
         }),
         click: () => {
-            del.sync(dataPath, {force: true});
+            fs.rmSync(dataPath, {recursive: true, force: true});
             app.relaunch();
             app.exit();
         }
@@ -364,7 +285,7 @@ const devToolKey = ((process.platform === 'darwin') ?
     }
 );
 
-const createWindow = () => {
+const createWindow = async() => {
     mainWindow = new BrowserWindow({
         icon: path.join(__dirname, './icon/IrcBloq-Link.ico'),
         width: 400,
@@ -377,9 +298,6 @@ const createWindow = () => {
             enableRemoteModule: true
         }
     });
-
-    mainWindow.loadFile('./src/index.html');
-    mainWindow.setMenu(null);
 
     if (locale === 'zh-CN') {
         locale = 'zh-cn';
@@ -417,7 +335,7 @@ const createWindow = () => {
     if (oldVersion) {
         if (compareVersions.compare(appVersion, oldVersion, '>')) {
             if (fs.existsSync(dataPath)) {
-                del.sync([dataPath], {force: true});
+                fs.rmSync(dataPath, {recursive: true, force: true});
             }
             nodeStorage.setItem('version', appVersion);
         }
@@ -436,11 +354,16 @@ const createWindow = () => {
     link.listen();
 
     // start resource server
-    resourceServer = new IrcbloqResourceServer(dataPath, path.join(resourcePath, 'external-resources'));
-    resourceServer.listen();
-	const r_Path = path.join(dataPath, 'external-resources');
-	const _config= fs.readFileSync(path.resolve(r_Path,"config.json"));
-	const r_version = JSON.parse(_config);
+    resourceServer = new IrcbloqResourceServer(dataPath,
+        path.join(resourcePath, 'external-resources'),
+        app.getLocaleCountryCode());
+
+  await resourceServer.initializeResources();
+  await resourceServer.listen();
+
+    const r_Path = path.join(dataPath, 'external-resources');
+    const _config= fs.readFileSync(path.resolve(r_Path,"config.json"));
+    const r_version = JSON.parse(_config);
 
     if(process.platform !== 'darwin'){
         appTray = new Tray(nativeImage.createFromPath(path.join(__dirname, './icon/IrcBloq-Link.ico')));
@@ -448,7 +371,7 @@ const createWindow = () => {
     else{
         appTray = new Tray(nativeImage.createFromPath(path.join(__dirname, './icon/IrcBloq-Link.png')));
     }
-    
+
     appTray.setToolTip('Ircbloq Link');
     appTray.setContextMenu(Menu.buildFromTemplate(makeTrayMenu(locale)));
 
@@ -464,9 +387,11 @@ const createWindow = () => {
     mainWindow.on('closed', () => {
         mainWindow = null;
     });
-	
+
+
+
 	    // generate product information.
-    webContents.once('dom-ready', () => {
+    await webContents.once('dom-ready', () => {
         const electronVersion = process.versions['electron'.toLowerCase()];
         const chromeVersion = process.versions['chrome'.toLowerCase()];
         mainWindow.webContents.executeJavaScript(
@@ -477,6 +402,10 @@ const createWindow = () => {
             document.getElementById("chrome-version").innerHTML = "Chrome ${chromeVersion}";`
         );
     });
+
+    mainWindow.loadFile('./src/index.html');
+    mainWindow.setMenu(null);
+
 };
 
 const gotTheLock = app.requestSingleInstanceLock();
@@ -491,7 +420,7 @@ if (gotTheLock) {
     });
     app.on('ready', () => {
         createWindow();
-        checkMainUpdate(false);
+        checkUpdate(false);
     });
 } else {
     app.quit();
