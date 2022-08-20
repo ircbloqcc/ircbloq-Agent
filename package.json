@@ -7,6 +7,7 @@
   "author": "iRobochakra Team",
   "license": "MIT",
   "scripts": {
+	"preinstall": "npx npm-force-resolutions",
     "postinstall": "electron-builder install-app-deps",
     "i18n:src": "mkdirp translations && format-message extract --out-file translations/en.json src/**.js",
     "i18n:push": "tx-push-src ircbloq-editor link-desktop translations/en.json",
