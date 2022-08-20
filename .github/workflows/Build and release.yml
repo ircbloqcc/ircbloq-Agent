@@ -28,7 +28,7 @@ jobs:
         run: git config --global url."https://${{ secrets.REPO_AUTH_TOKEN }}@github.com/".insteadOf ssh://git@github.com/
         
       - name: Npm Install
-        run: npm i
+        run: npm ci
 
       - name: Build Dist
         env:
@@ -60,7 +60,7 @@ jobs:
         run: git config --global url."https://${{ secrets.REPO_AUTH_TOKEN }}@github.com/".insteadOf ssh://git@github.com/
         
       - name: Npm Install
-        run: npm i
+        run: npm ci
 
 
       - name: Build Dist
@@ -93,7 +93,7 @@ jobs:
         run: git config --global url."https://${{ secrets.REPO_AUTH_TOKEN }}@github.com/".insteadOf ssh://git@github.com/
         
       - name: Npm Install
-        run: npm i
+        run: npm ci
 
 
       - name: Build Dist
