@@ -45,6 +45,8 @@
     "ircbloq-l10n": "latest",
     "ircbloq-link": "latest",
     "node-localstorage": "^2.2.1",
+    "format-message": "^6.2.3",
+    "format-message-cli": "^6.2.3",
     "os-locale": "^5.0.0"
   },
   "devDependencies": {
@@ -53,8 +55,6 @@
     "electron-builder": "^22.13.1",
     "eslint": "^5.16.0",
     "eslint-config-scratch": "^6.0.0",
-    "format-message": "^6.2.3",
-    "format-message-cli": "^6.2.3",
     "rimraf": "^3.0.2"
   }
 }
