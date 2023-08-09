@@ -26,7 +26,7 @@ jobs:
           
       - name: github Token
         run: git config --global url."https://${{ secrets.REPO_AUTH_TOKEN }}@github.com/".insteadOf ssh://git@github.com/
-        
+      
       - name: Npm Install
         run: npm i
 
@@ -59,6 +59,16 @@ jobs:
       - name: github Token
         run: git config --global url."https://${{ secrets.REPO_AUTH_TOKEN }}@github.com/".insteadOf ssh://git@github.com/
         
+      - name: Set up Python 2.7
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            python2.7 python2.7-dev python2-pip-whl
+          sudo ln -sf python2.7 /usr/bin/python
+          export PYTHONPATH=`echo /usr/share/python-wheels/pip-*py2*.whl`
+          sudo --preserve-env=PYTHONPATH python -m pip install --upgrade pip setuptools wheel
+          sudo chown -R $USER /usr/local/lib/python2.7
+          
       - name: Npm Install
         run: npm i
 
@@ -91,7 +101,17 @@ jobs:
           
       - name: github Token
         run: git config --global url."https://${{ secrets.REPO_AUTH_TOKEN }}@github.com/".insteadOf ssh://git@github.com/
-        
+      
+      - name: Set up Python 2.7
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            python2.7 python2.7-dev python2-pip-whl
+          sudo ln -sf python2.7 /usr/bin/python
+          export PYTHONPATH=`echo /usr/share/python-wheels/pip-*py2*.whl`
+          sudo --preserve-env=PYTHONPATH python -m pip install --upgrade pip setuptools wheel
+          sudo chown -R $USER /usr/local/lib/python2.7
+          
       - name: Npm Install
         run: npm i
 
