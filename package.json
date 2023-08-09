@@ -42,12 +42,13 @@
     "del": "^6.0.0",
     "electron-fetch": "^1.7.4",
     "electron-log": "^4.4.8",
+    "format-message": "^6.2.3",
+    "format-message-cli": "^6.2.3",
     "ircbloq-l10n": "latest",
     "ircbloq-link": "latest",
     "node-localstorage": "^2.2.1",
-    "format-message": "^6.2.3",
-    "format-message-cli": "^6.2.3",
-    "os-locale": "^5.0.0"
+    "os-locale": "^5.0.0",
+    "package-lock-only": "0.0.4"
   },
   "devDependencies": {
     "babel-eslint": "^10.1.0",
