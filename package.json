@@ -52,7 +52,7 @@
   "devDependencies": {
     "babel-eslint": "^10.1.0",
     "electron": "^15.3.1",
-    "electron-builder": "^22.13.1",
+    "electron-builder": "^23.0.2",
     "eslint": "^5.16.0",
     "eslint-config-scratch": "^6.0.0",
     "rimraf": "^3.0.2"
