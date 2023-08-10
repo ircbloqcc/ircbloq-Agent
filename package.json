@@ -17,6 +17,7 @@
     "fetch:all32": "npm run fetch:drivers && npm run fetch:firmwares && npm run fetch:tools -- --arch=ia32",
     "start": "electron .",
     "build": "electron-builder",
+    "build:ia32": "electron-builder --ia32",
     "build:pack": "electron-builder --dir",
     "dist": "npm run clean && npm run fetch:all && electron-builder",
     "dist32": "npm run clean && npm run fetch:all32 && electron-builder --ia32",
@@ -42,19 +43,19 @@
     "del": "^6.0.0",
     "electron-fetch": "^1.7.4",
     "electron-log": "^4.4.8",
-    "format-message": "^6.2.3",
-    "format-message-cli": "^6.2.3",
     "ircbloq-l10n": "latest",
     "ircbloq-link": "latest",
     "node-localstorage": "^2.2.1",
+    "format-message": "^6.2.3",
+    "format-message-cli": "^6.2.3",
     "os-locale": "^5.0.0",
-    "package-lock-only": "0.0.4"
+    "postinstall": "^0.7.4"
   },
   "devDependencies": {
     "babel-eslint": "^10.1.0",
-    "electron": "^15.3.1",
-    "electron-builder": "^23.0.2",
-    "eslint": "^5.16.0",
+    "electron": "20.3.0",
+    "electron-builder": "23.6.0",
+    "eslint": "^7.0.0",
     "eslint-config-scratch": "^6.0.0",
     "rimraf": "^3.0.2"
   }
