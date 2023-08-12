@@ -15,7 +15,7 @@ jobs:
   build-windows:
     runs-on: windows-2019
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           persist-credentials: false
 
@@ -47,9 +47,10 @@ jobs:
   build-windows32:
     runs-on: windows-2019
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           persist-credentials: false
+          
       - name: Set up Python 2.7
         uses: actions/setup-python@v4
         with:
@@ -84,7 +85,7 @@ jobs:
   build-mac:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           persist-credentials: false
 
