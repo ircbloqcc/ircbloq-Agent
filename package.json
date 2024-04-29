@@ -1,7 +1,7 @@
 {
   "name": "ircbloq-link-desktop",
   "productName": "ircBloqV4-Link",
-  "version": "4.1.7",
+  "version": "4.1.8",
   "description": "IrcBloqV4 link desktop",
   "main": "src/index.js",
   "author": "iRobochakra Team",
