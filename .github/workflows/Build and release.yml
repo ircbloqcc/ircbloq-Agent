@@ -22,26 +22,32 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '14.x'
-          
+          node-version: '18.x'
+
       - name: github Token
         run: git config --global url."https://${{ secrets.REPO_AUTH_TOKEN }}@github.com/".insteadOf ssh://git@github.com/
-      
+
       - name: Npm Install
-        run: npm i
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          npm config set engine-strict false
+          npm i --legacy-peer-deps
 
       - name: Build Dist
         env:
           GA_ID: ${{ secrets.GA_ID }}
           NODE_ENV: production
-          NODE_OPTIONS: --max_old_space_size=4096
+          NODE_OPTIONS: --max_old_space_size=12288
         run: npm run dist
 
       - name: Archive production artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: ircBloqV4Link-win-x64.exe
-          path: dist/ircBloqV4*Setup.exe
+          name: ircBloqV4Agent-win-x64.exe
+          path: dist/ircBloq*x64.exe
           retention-days: 1
 
   build-windows32:
@@ -50,17 +56,23 @@ jobs:
       - uses: actions/checkout@v3
         with:
           persist-credentials: false
-                    
+
       - name: Use Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '14.x'
-          
+          node-version: '18.x'
+
       - name: github Token
         run: git config --global url."https://${{ secrets.REPO_AUTH_TOKEN }}@github.com/".insteadOf ssh://git@github.com/
-    
+
       - name: Npm Install
-        run: npm i
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          npm config set engine-strict false
+          npm i --legacy-peer-deps
 
 
       - name: Build Dist
@@ -68,17 +80,17 @@ jobs:
           GA_ID: ${{ secrets.GA_ID }}
           NODE_ENV: production
           NODE_OPTIONS: --max_old_space_size=4096
-        run: npm run dist32
+        run: npm run dist:ia32
 
       - name: Archive production artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: ircBloqV4Link-win-x86.exe
-          path: dist/ircBloqV4*Setup.exe
+          name: ircBloqV4Agent-win-x86.exe
+          path: dist/ircBloq*ia32.exe
           retention-days: 1
 
   build-mac:
-    runs-on: macos-latest
+    runs-on: macos-13
     steps:
       - uses: actions/checkout@v3
         with:
@@ -87,32 +99,93 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '14.x'
-          
+          node-version: '16.x'
+
+      - name: Install Python 2.7
+        run: |
+          brew install pyenv
+          pyenv install 2.7.18
+          pyenv global 2.7.18
+
       - name: github Token
         run: git config --global url."https://${{ secrets.REPO_AUTH_TOKEN }}@github.com/".insteadOf ssh://git@github.com/
-      
-      - name: Npm Install
-        run: npm i
 
+      - name: Npm Install
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          npm config set engine-strict false
+          npm i --legacy-peer-deps
+
+      - name: Fix 7zip Permissions
+        run: |
+          chmod +x node_modules/ircbloq-link/node_modules/7zip-bin/mac/arm64/7za
+          chmod +x ./node_modules/ircbloq-link/node_modules/7zip-bin/mac/x64/7za
 
       - name: Build Dist
         env:
           GA_ID: ${{ secrets.GA_ID }}
           NODE_ENV: production
-          NODE_OPTIONS: --max_old_space_size=8192
+          NODE_OPTIONS: --max_old_space_size=12288
           CSC_IDENTITY_AUTO_DISCOVERY: false
         run: npm run dist
 
       - name: Archive production artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: ircBloqV4Link-mac.dmg
-          path: dist/ircBloqV4*.dmg
+          name: ircBloqV4Agent-mac.dmg
+          path: dist/ircBloq*.dmg
           retention-days: 1
 
+  build-linux:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+
+      - name: Use Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18.x'
+
+      - name: github Token
+        run: git config --global url."https://${{ secrets.REPO_AUTH_TOKEN }}@github.com/".insteadOf ssh://git@github.com/
+
+      - name: Npm Install
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          npm config set engine-strict false
+          npm i --legacy-peer-deps
+
+      - name: Fix 7zip Permissions
+        run: |
+          chmod +x node_modules/ircbloq-link/node_modules/7zip-bin/mac/arm64/7za
+          chmod +x ./node_modules/ircbloq-link/node_modules/7zip-bin/mac/x64/7za
+
+      - name: Build Dist
+        env:
+          GA_ID: ${{ secrets.GA_ID }}
+          NODE_ENV: production
+          NODE_OPTIONS: --max_old_space_size=12288
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+        run: npm run dist
+
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ircBloqV4Agent-linux.deb
+          path: dist/ircBloq*.deb
+          retention-days: 1
+
+
   create-release:
-    needs: [build-windows, build-windows32, build-mac]
+    needs: [build-windows, build-windows32, build-mac, build-linux]
     if: ${{ startsWith(github.ref, 'refs/tags/V') }}
     runs-on: ubuntu-latest
     steps:
@@ -154,8 +227,8 @@ jobs:
       - name: Zip win x64 file
         uses: papeloto/action-zip@v1
         with:
-          files: ircBloqV4Link-win-x64.exe
-          dest: ircBloqV4Link-win-x64.zip
+          files: ircBloqV4Agent-win-x64.exe
+          dest: ircBloqV4Agent-win-x64.zip
 
       - name: Relase Windows x64 package
         uses: actions/upload-release-asset@v1
@@ -163,16 +236,16 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.REPO_AUTH_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./ircBloqV4Link-win-x64.zip
-          asset_name: ircBloqV4Link-${{ steps.get_tag.outputs.tag }}-win-x64.zip
+          asset_path: ./ircBloqV4Agent-win-x64.zip
+          asset_name: ircBloqV4Agent-${{ steps.get_tag.outputs.tag }}-win-x64.zip
           asset_content_type: application/zip
 
       # Windows x86 Release
       - name: Zip win x86 file
         uses: papeloto/action-zip@v1
         with:
-            files: ircBloqV4Link-win-x86.exe
-            dest: ircBloqV4Link-win-x86.zip
+            files: ircBloqV4Agent-win-x86.exe
+            dest: ircBloqV4Agent-win-x86.zip
 
       - name: Relase Windows x86 package
         uses: actions/upload-release-asset@v1
@@ -180,16 +253,16 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.REPO_AUTH_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./ircBloqV4Link-win-x86.zip
-          asset_name: ircBloqV4Link-${{ steps.get_tag.outputs.tag }}-win-x86.zip
+          asset_path: ./ircBloqV4Agent-win-x86.zip
+          asset_name: ircBloqV4Agent-${{ steps.get_tag.outputs.tag }}-win-x86.zip
           asset_content_type: application/zip
 
       # Mac Release
       - name: Zip mac file
         uses: papeloto/action-zip@v1
         with:
-            files: ircBloqV4Link-mac.dmg
-            dest: ircBloqV4Link-mac.zip
+            files: ircBloqV4Agent-mac.dmg
+            dest: ircBloqV4Agent-mac.zip
 
       - name: Relase Mac package
         uses: actions/upload-release-asset@v1
@@ -197,13 +270,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.REPO_AUTH_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./ircBloqV4Link-mac.zip
-          asset_name: ircBloqV4Link-${{ steps.get_tag.outputs.tag }}-mac.zip
+          asset_path: ./ircBloqV4Agent-mac.zip
+          asset_name: ircBloqV4Agent-${{ steps.get_tag.outputs.tag }}-mac.zip
           asset_content_type: application/zip
 
       # Checksum Release
       - name: Checksum
-        run: sha256sum ircBloqV4Link-*.zip >> checksums.txt
+        run: sha256sum ircBloqV4Agent-*.zip >> checksums.txt
 
       - uses: actions/upload-release-asset@v1
         env:
