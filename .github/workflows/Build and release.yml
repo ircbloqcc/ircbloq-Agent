@@ -46,8 +46,8 @@ jobs:
       - name: Archive production artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ircBloqV4Agent-win-x64.exe
-          path: dist/ircBloq*x64.exe
+          name: IrcBloqV4Agent-win-x64.exe
+          path: dist/IrcBloq*x64.exe
           retention-days: 1
 
   build-windows32:
@@ -85,8 +85,8 @@ jobs:
       - name: Archive production artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ircBloqV4Agent-win-x86.exe
-          path: dist/ircBloq*ia32.exe
+          name: IrcBloqV4Agent-win-x86.exe
+          path: dist/IrcBloq*ia32.exe
           retention-days: 1
 
   build-mac:
@@ -138,8 +138,8 @@ jobs:
       - name: Archive production artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ircBloqV4Agent-mac.dmg
-          path: dist/ircBloq*.dmg
+          name: IrcBloqV4Agent-mac.dmg
+          path: dist/IrcBloq*.dmg
           retention-days: 1
 
   build-linux:
@@ -179,8 +179,8 @@ jobs:
       - name: Archive production artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ircBloqV4Agent-linux.deb
-          path: dist/ircBloq*.deb
+          name: IrcBloqV4Agent-linux.deb
+          path: dist/IrcBloq*.deb
           retention-days: 1
 
 
@@ -227,8 +227,8 @@ jobs:
       - name: Zip win x64 file
         uses: papeloto/action-zip@v1
         with:
-          files: ircBloqV4Agent-win-x64.exe
-          dest: ircBloqV4Agent-win-x64.zip
+          files: IrcBloqV4Agent-win-x64.exe
+          dest: IrcBloqV4Agent-win-x64.zip
 
       - name: Relase Windows x64 package
         uses: actions/upload-release-asset@v1
@@ -236,16 +236,16 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.REPO_AUTH_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./ircBloqV4Agent-win-x64.zip
-          asset_name: ircBloqV4Agent-${{ steps.get_tag.outputs.tag }}-win-x64.zip
+          asset_path: ./IrcBloqV4Agent-win-x64.zip
+          asset_name: rcBloqV4Agent-${{ steps.get_tag.outputs.tag }}-win-x64.zip
           asset_content_type: application/zip
 
       # Windows x86 Release
       - name: Zip win x86 file
         uses: papeloto/action-zip@v1
         with:
-            files: ircBloqV4Agent-win-x86.exe
-            dest: ircBloqV4Agent-win-x86.zip
+            files: IrcBloqV4Agent-win-x86.exe
+            dest: IrcBloqV4Agent-win-x86.zip
 
       - name: Relase Windows x86 package
         uses: actions/upload-release-asset@v1
@@ -253,16 +253,16 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.REPO_AUTH_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./ircBloqV4Agent-win-x86.zip
-          asset_name: ircBloqV4Agent-${{ steps.get_tag.outputs.tag }}-win-x86.zip
+          asset_path: ./IrcBloqV4Agent-win-x86.zip
+          asset_name: IrcBloqV4Agent-${{ steps.get_tag.outputs.tag }}-win-x86.zip
           asset_content_type: application/zip
 
       # Mac Release
       - name: Zip mac file
         uses: papeloto/action-zip@v1
         with:
-            files: ircBloqV4Agent-mac.dmg
-            dest: ircBloqV4Agent-mac.zip
+            files: IrcBloqV4Agent-mac.dmg
+            dest: IrcBloqV4Agent-mac.zip
 
       - name: Relase Mac package
         uses: actions/upload-release-asset@v1
@@ -270,13 +270,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.REPO_AUTH_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./ircBloqV4Agent-mac.zip
-          asset_name: ircBloqV4Agent-${{ steps.get_tag.outputs.tag }}-mac.zip
+          asset_path: ./IrcBloqV4Agent-mac.zip
+          asset_name: IrcBloqV4Agent-${{ steps.get_tag.outputs.tag }}-mac.zip
           asset_content_type: application/zip
 
       # Checksum Release
       - name: Checksum
-        run: sha256sum ircBloqV4Agent-*.zip >> checksums.txt
+        run: sha256sum IrcBloqV4Agent-*.zip >> checksums.txt
 
       - uses: actions/upload-release-asset@v1
         env:
@@ -291,8 +291,8 @@ jobs:
       - name: Zip linux file
         uses: papeloto/action-zip@v1
         with:
-            files: ircBloqV4Agent-linux.deb
-            dest: ircBloqV4Agent-linux.zip
+            files: IrcBloqV4Agent-linux.deb
+            dest: IrcBloqV4Agent-linux.zip
 
       - name: Relase Linux package
         uses: actions/upload-release-asset@v1
@@ -300,13 +300,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.REPO_AUTH_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./ircBloqV4Agent-linux.zip
-          asset_name: ircBloqV4Agent-${{ steps.get_tag.outputs.tag }}-Linux.zip
+          asset_path: ./IrcBloqV4Agent-linux.zip
+          asset_name: IrcBloqV4Agent-${{ steps.get_tag.outputs.tag }}-Linux.zip
           asset_content_type: application/zip
 
       # Checksum Release
       - name: Checksum
-        run: sha256sum ircBloqV4Agent-*.zip >> checksums.txt
+        run: sha256sum IrcBloqV4Agent-*.zip >> checksums.txt
 
       - uses: actions/upload-release-asset@v1
         env:
