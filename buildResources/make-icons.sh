@@ -1,8 +1,8 @@
 #!/bin/bash
-SRC=../src/icon/IrcBloq-Link.svg
-OUT_ICONSET=IrcBloq-Link.iconset
-OUT_ICNS=IrcBloq-Link.icns
-OUT_ICO=IrcBloq-Link.ico
+SRC=../src/icon/IrcBloqDesktop.svg
+OUT_ICONSET=IrcBloqDesktop.iconset
+OUT_ICNS=IrcBloqDesktop.icns
+OUT_ICO=IrcBloqDesktop.ico
 TMP_ICO=tmp
 
 ICO_BASIC_SIZES="16 24 32 48 256"

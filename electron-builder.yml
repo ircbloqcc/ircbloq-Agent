@@ -3,43 +3,68 @@ directories:
   output: dist
 extraResources: ["tools", 'firmwares', "statics", "drivers"]
 
-appId: 'ircbloq.cc.ircbloq-link'
-productName: "ircBloqV4-Link"
-publish: # empty provider list = don't publish
+appId: 'ircbloq.cc.ircbloq-agent'
+productName: "ircBloqV4-Agent"
+publish:
+  - provider: github
+artifactName: "IrcBloq-Agent_v${version}_${os}_${arch}.${ext}"
+
+fileAssociations:
+  ext: ib
+  name: IrcBloq project file
+  role: Editor
+  icon: buildResources/IrcBloqFile.ico
 
 mac:
   category: public.app-category.education
   entitlements: buildResources/entitlements.mac.plist
+  extendInfo:
+    NSCameraUsageDescription: >-
+        This app requires camera access when using the video sensing blocks.
+    NSMicrophoneUsageDescription: >-
+        This app requires microphone access when recording sounds or detecting loudness.
   gatekeeperAssess: true
   hardenedRuntime: true
-  icon: buildResources/IrcBloq-Link.icns
+  icon: buildResources/IrcBloq-Agent.icns
   provisioningProfile: embedded.provisionprofile
-  artifactName: "ircBloqV4-Link ${version}.${ext}"
   target:
     - dmg
     # - mas
 dmg:
-  title: "ircBloqV4-Link ${version}"
+  title: "ircBloqV4-Agent ${version}"
 # mas:
 #   category: public.app-category.education
 #   entitlements: buildResources/entitlements.mas.plist
 #   entitlementsInherit: buildResources/entitlements.mas.inherit.plist
 #   hardenedRuntime: false
-#   icon: buildResources/IrcBloq-Link.icns
+#   icon: buildResources/IrcBloq-Agent.icns
 
 win:
-  icon: buildResources/IrcBloq-Link.ico
+  icon: buildResources/IrcBloq-Agent.ico
   target:
     # - appx
     - nsis
 # appx:
-#   identityName: IrcBloq.IrcBloqLinkDesktop
+#   identityName: IrcBloq.IrcBloqAgentDesktop
 #   publisherDisplayName: "IrcBloq"
 #   publisher: "CN=2EC43DF1-469A-4119-9AB9-568A0A1FF65F"
-#   artifactName: "ircBloqV4-Link Desktop ${version}.${ext}"
+#   artifactName: "ircBloqV4-Agent Desktop ${version}.${ext}"
 nsis:
   oneClick: false # allow user to choose per-user or per-machine
   allowToChangeInstallationDirectory: true
   include: buildResources/installer.nsh
-#   license: LICENSE
-  artifactName: "ircBloqV4-Link ${version} Setup.${ext}"
+
+linux:
+  category: Education
+  icon: buildResources/linux
+  desktop:
+    - Encoding: UTF-8
+    - Name: IrcBloqDesktop
+    - Icon: ircbloq-desktop
+    - Type: Application
+    - Terminal: false
+  target:
+    - deb
+
+deb:
+  depends: ["libnotify4", "libxtst6", "libnss3"]

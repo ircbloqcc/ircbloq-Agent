@@ -13,6 +13,7 @@ const locales = require('ircbloq-l10n/locales/link-desktop-msgs');
 const osLocale = require('os-locale');
 
 const fetch = require('node-fetch');
+const { autoUpdater } = require('electron-updater');
 
 const {productName, version} = require('../package.json');
 
@@ -59,14 +60,26 @@ const handleClickLanguage = l => {
 
 makeTrayMenu = (l, checkingUpdate = false) => [
     {
-     label: 'Go to Online IrcBloqV4',
-      click: () => {
-        if ((os.platform() === 'win32')) {
-          execSync('start https://software.irobochakra.com/');
-        } else if ((os.platform() === 'darwin')) {
-          execSync('open https://software.irobochakra.com/');
+        label: 'Go to Online IrcBloqV4',
+        click: () => {
+            if (os.platform() === 'win32') {
+                execSync('start https://software.irobochakra.com/');
+            } else if (os.platform() === 'darwin') {
+                execSync('open https://software.irobochakra.com/');
+            }
         }
-	  }
+    },
+    {
+        label: 'Check for Updates',
+        enabled: !checkingUpdate,
+        click: () => {
+            autoUpdater.checkForUpdates();
+            dialog.showMessageBox({
+                type: 'info',
+                message: 'Checking for updates...',
+                buttons: ['OK']
+            });
+        }
     },
     {
         type: 'separator'
@@ -79,20 +92,13 @@ makeTrayMenu = (l, checkingUpdate = false) => [
         }),
         click: () => {
             const driverPath = path.join(resourcePath, 'drivers');
-        if ((os.platform() === 'win32') && (os.arch() === 'x64')) {
-          execFile('install_x64.bat', [], {
-            cwd: driverPath
-          });
-        } else if ((os.platform() === 'win32') && (os.arch() === 'ia32')) {
-          execFile('install_x86.bat', [], {
-            cwd: driverPath
-          });
-        } else if ((os.platform() === 'darwin')) {
-          spawn('sh', ['install.sh'], {
-            shell: true,
-            cwd: driverPath
-          });
-        }
+            if ((os.platform() === 'win32') && (os.arch() === 'x64')) {
+                execFile('install_x64.bat', [], { cwd: driverPath });
+            } else if ((os.platform() === 'win32') && (os.arch() === 'ia32')) {
+                execFile('install_x86.bat', [], { cwd: driverPath });
+            } else if ((os.platform() === 'darwin')) {
+                spawn('sh', ['install.sh'], { shell: true, cwd: driverPath });
+            }
         }
     },
     {
@@ -129,7 +135,7 @@ const devToolKey = ((process.platform === 'darwin') ?
 
 const createWindow = async() => {
     mainWindow = new BrowserWindow({
-        icon: path.join(__dirname, './icon/IrcBloq-Link.ico'),
+        icon: path.join(__dirname, './icon/IrcBloq.Agent.ico'),
         width: 400,
         height: 400,
         center: true,
@@ -176,13 +182,13 @@ const createWindow = async() => {
     link.listen();
 
     if(process.platform !== 'darwin'){
-        appTray = new Tray(nativeImage.createFromPath(path.join(__dirname, './icon/IrcBloq-Link.ico')));
+        appTray = new Tray(nativeImage.createFromPath(path.join(__dirname, './icon/IrcBloq-Agent.ico')));
     }
     else{
-        appTray = new Tray(nativeImage.createFromPath(path.join(__dirname, './icon/IrcBloq-Link.png')));
+        appTray = new Tray(nativeImage.createFromPath(path.join(__dirname, './icon/IrcBloq-Agent.png')));
     }
 
-    appTray.setToolTip('Ircbloq Link');
+    appTray.setToolTip('Ircbloq Agent');
     appTray.setContextMenu(Menu.buildFromTemplate(makeTrayMenu(locale)));
 
     appTray.on('click', () => {
@@ -212,6 +218,31 @@ const createWindow = async() => {
 
     mainWindow.loadFile('./src/index.html');
     mainWindow.setMenu(null);
+    autoUpdater.checkForUpdatesAndNotify();
+
+    autoUpdater.on('update-available', () => {
+      dialog.showMessageBox({
+        type: 'info',
+        title: 'Update Available',
+        message: 'A new version is available. Downloading now...'
+      });
+    });
+
+    autoUpdater.on('update-downloaded', () => {
+      dialog.showMessageBox({
+        type: 'info',
+        title: 'Update Ready',
+        message: 'Update downloaded. The app will now restart to apply the update.',
+        buttons: ['Restart']
+      }).then(() => {
+        autoUpdater.quitAndInstall();
+      });
+    });
+
+    autoUpdater.on('error', (err) => {
+      console.error('Update error:', err);
+    });
+
 
 };
 

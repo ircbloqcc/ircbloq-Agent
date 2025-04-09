@@ -23,8 +23,8 @@ ${StrRep}
     StrCmp $R0 "" 0 done
     StrCmp $R1 "" 0 done
 
-    WriteRegExpandStr HKLM "${INSTALL_REGISTRY_KEY}" InstallLocation "C:\ircBloqV4-link"
-    WriteRegExpandStr HKCU "${INSTALL_REGISTRY_KEY}" InstallLocation "C:\ircBloqV4-link"
+    WriteRegExpandStr HKLM "${INSTALL_REGISTRY_KEY}" InstallLocation "C:\ircBloqV4-Agent"
+    WriteRegExpandStr HKCU "${INSTALL_REGISTRY_KEY}" InstallLocation "C:\ircBloqV4-Agent"
 
 done:
     ${If} ${RunningX64}
@@ -32,3 +32,18 @@ done:
     ${EndIf}
 
 !macroend
+
+!macro customUnInstall
+
+    ${If} ${RunningX64}
+        SetRegView 64
+    ${EndIf}
+
+    DeleteRegKey HKLM "${INSTALL_REGISTRY_KEY}"
+    DeleteRegKey HKCU "${INSTALL_REGISTRY_KEY}"
+
+    ${If} ${RunningX64}
+        SetRegView LastUsed
+    ${EndIf}
+
+ !macroend
