@@ -44,7 +44,7 @@ jobs:
         run: npm run dist
 
       - name: Archive production artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: ircBloqV4Agent-win-x64.exe
           path: dist/ircBloq*x64.exe
@@ -83,7 +83,7 @@ jobs:
         run: npm run dist:ia32
 
       - name: Archive production artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: ircBloqV4Agent-win-x86.exe
           path: dist/ircBloq*ia32.exe
@@ -133,7 +133,7 @@ jobs:
         run: npm run dist
 
       - name: Archive production artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: ircBloqV4Agent-mac.dmg
           path: dist/ircBloq*.dmg
@@ -177,7 +177,7 @@ jobs:
         run: npm run dist
 
       - name: Archive production artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: ircBloqV4Agent-linux.deb
           path: dist/ircBloq*.deb
@@ -221,7 +221,7 @@ jobs:
           token:  ${{ secrets.REPO_AUTH_TOKEN }}
 
       - name: Download all build result
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
 
       # Windows x64 Release
       - name: Zip win x64 file
@@ -272,6 +272,36 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./ircBloqV4Agent-mac.zip
           asset_name: ircBloqV4Agent-${{ steps.get_tag.outputs.tag }}-mac.zip
+          asset_content_type: application/zip
+
+      # Checksum Release
+      - name: Checksum
+        run: sha256sum ircBloqV4Agent-*.zip >> checksums.txt
+
+      - uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.REPO_AUTH_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: checksums.txt
+          asset_name: ${{ steps.get_tag.outputs.tag }}-checksums-sha256.txt
+          asset_content_type: application/zip
+
+      # Linux Release
+      - name: Zip linux file
+        uses: papeloto/action-zip@v1
+        with:
+            files: ircBloqV4Agent-linux.deb
+            dest: ircBloqV4Agent-linux.zip
+
+      - name: Relase Linux package
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.REPO_AUTH_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./ircBloqV4Agent-linux.zip
+          asset_name: ircBloqV4Agent-${{ steps.get_tag.outputs.tag }}-Linux.zip
           asset_content_type: application/zip
 
       # Checksum Release
