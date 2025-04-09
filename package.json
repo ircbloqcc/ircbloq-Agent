@@ -2,6 +2,7 @@
   "name": "ircbloq-agent",
   "productName": "ircBloqV4-Agent",
   "version": "4.2.0",
+  "author": "i-Robochakra Team <mail@irobochakra.com> (https://www.irobochakra.com/)",
   "description": "IrcBloqV4 Agent",
   "main": "src/index.js",
   "author": "iRobochakra Team",
