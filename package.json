@@ -24,7 +24,7 @@
     "build:publish": "npm run compile && npm run doBuild -- --mode=publish",
     "doBuild": "node ./scripts/electron-builder-wrapper.js",
     "dist": "npm run clean && npm run fetch:all && npm run doBuild -- --mode=dist",
-    "dist:ia32": "npm run clean && npm run compile && npm run fetch:all && npm run doBuild -- --mode=dist --arch=ia32",
+    "dist:ia32": "npm run clean &&  npm run fetch:all && npm run doBuild -- --mode=dist --arch=ia32",
     "publish": "npm run clean && npm run fetch:all  && npm run doBuild -- --mode=publish",
     "publish:ia32": "npm run clean && npm run compile && npm run fetch:all  && npm run doBuild -- --arch=ia32 --mode=publish",
     "test": "npm run test:lint",
