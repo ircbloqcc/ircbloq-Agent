@@ -5,7 +5,6 @@
   "author": "i-Robochakra Team <mail@irobochakra.com> (https://www.irobochakra.com/)",
   "description": "IrcBloqV4 Agent",
   "main": "src/index.js",
-  "author": "iRobochakra Team",
   "license": "MIT",
   "scripts": {
     "postinstall": "electron-builder install-app-deps",
