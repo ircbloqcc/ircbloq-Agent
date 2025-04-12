@@ -59,8 +59,8 @@ linux:
   icon: buildResources/linux
   desktop:
     - Encoding: UTF-8
-    - Name: IrcBloqDesktop
-    - Icon: ircbloq-desktop
+    - Name: IrcBloqAgentDesktop
+    - Icon: ircbloq-Agent
     - Type: Application
     - Terminal: false
   target:

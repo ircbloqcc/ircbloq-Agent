@@ -18,6 +18,8 @@ const axios = require('axios');
 
 const {productName, version} = require('../package.json');
 
+const sudo = require('sudo-prompt');
+
 const {JSONStorage} = require('node-localstorage');
 const nodeStorage = new JSONStorage(app.getPath('userData'));
 const { downloadToolsWithProgress } = require('../scripts/downloadToolsWithProgress');
@@ -31,6 +33,20 @@ let resourceServer;
 let resourcePath;
 let dataPath;
 let makeTrayMenu = () => {};
+
+// suppress deprecation warning; this will be the default in Electron 9
+app.allowRendererProcessReuse = true;
+
+// allow connect to localhost
+app.commandLine.appendSwitch('allow-insecure-localhost', 'true');
+
+// enable gpu and ignore gpu blacklist
+app.commandLine.hasSwitch('enable-gpu');
+app.commandLine.hasSwitch('ignore-gpu-blacklist');
+app.commandLine.appendSwitch('no-sandbox');
+
+app.disableHardwareAcceleration();
+
 //Dont show app in dock
 if (process.platform === 'darwin') {
   app.dock.hide();
@@ -126,7 +142,7 @@ makeTrayMenu = (l, checkingUpdate = false) => [
             default: 'install driver',
             description: 'Menu item to install driver'
         }),
-        click: () => {
+        click: (callback = null) => {
             const driverPath = path.join(resourcePath, 'drivers');
             if ((os.platform() === 'win32') && (os.arch() === 'x64')) {
                 execFile('install_x64.bat', [], { cwd: driverPath });
@@ -134,6 +150,19 @@ makeTrayMenu = (l, checkingUpdate = false) => [
                 execFile('install_x86.bat', [], { cwd: driverPath });
             } else if ((os.platform() === 'darwin')) {
                 spawn('sh', ['install.sh'], { shell: true, cwd: driverPath });
+            } else if ((os.platform() === 'linux')) {
+                console.log(productName);
+                sudo.exec(`sh ${path.join(driverPath, 'linux_setup.sh')} yang`, {name: productName},
+                    error => {
+                        if (error) throw error;
+                        if(callback){
+                          dialog.showMessageBox({
+                            type: 'info',
+                            message: 'Installation is complete, please restart the system.',
+                          });
+                        }
+                    }
+                );
             }
         }
     },
@@ -222,22 +251,21 @@ const createWindow = async() => {
 
     const status = downloadToolsWithProgress(mainWindow, resourcePath);
 
-    if(process.platform !== 'darwin'){
-        appTray = new Tray(nativeImage.createFromPath(path.join(__dirname, './icon/IrcBloq-Agent.ico')));
-    }
-    else{
-        appTray = new Tray(nativeImage.createFromPath(path.join(__dirname, './icon/IrcBloq-Agent.png')));
-    }
+    const iconPath = process.platform === 'win32'
+    ? path.join(__dirname, './icon/IrcBloq-Agent.ico')
+    : path.join(__dirname, './icon/IrcBloq-Agent.png');
 
+    appTray = new Tray(nativeImage.createFromPath(iconPath));
     appTray.setToolTip('Ircbloq Agent');
     appTray.setContextMenu(Menu.buildFromTemplate(makeTrayMenu(locale)));
+
 
     appTray.on('click', () => {
         mainWindow.show();
     });
 
     mainWindow.on('close', event => {
-        mainWindow.hide();
+        (process.platform !== 'linux') ?mainWindow.hide(): mainWindow.minimize();
         event.preventDefault();
     });
 

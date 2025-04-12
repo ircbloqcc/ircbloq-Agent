@@ -1,6 +1,6 @@
 {
   "name": "ircbloq-agent",
-  "productName": "ircBloqV4-Agent",
+  "productName": "ircBloqV4 Agent",
   "version": "4.2.0",
   "description": "IrcBloqV4 Agent",
   "main": "src/index.js",
@@ -62,7 +62,8 @@
     "ircbloq-link": "github:ircbloqcc/ircbloq-link#ircbloq-desktop-v4.2.0",
     "node-localstorage": "^2.2.1",
     "os-locale": "^5.0.0",
-    "postinstall": "^0.7.4"
+    "postinstall": "^0.7.4",
+    "sudo-prompt": "^9.2.1"
   },
   "devDependencies": {
     "babel-eslint": "^10.1.0",

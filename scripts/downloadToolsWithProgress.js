@@ -12,23 +12,33 @@ const repo = 'ircbloq-tools';
 const releaseApiUrl = `https://api.github.com/repos/${user}/${repo}/releases/latest`;
 
 let path7za;
-const basePath = path.join(process.resourcesPath, 'app.asar.unpacked', 'node_modules', '7zip-bin');
 
-const platform = process.platform;
-const arch = process.arch;
+const isDev = process.env.NODE_ENV === 'development' || process.defaultApp || /[\\/]electron[\\/]/.test(process.execPath);
 
-if (platform === 'win32') {
-    path7za = path.join(basePath, 'win', arch === 'x64' ? 'x64' : 'ia32', '7za.exe');
-} else if (platform === 'darwin') {
-    path7za = path.join(basePath, 'mac', '7za');
+if (isDev) {
+    // Use node_modules directly in dev mode
+     path7za = require("7zip-bin").path7za;
 } else {
-    path7za = path.join(basePath, 'linux', '7za');
+    const prodBasePath = path.join(process.resourcesPath, 'app.asar.unpacked', 'node_modules', '7zip-bin');
+    const platform = process.platform;
+    const arch = process.arch;
+    if (platform === 'win32') {
+        path7za = path.join(prodBasePath, 'win', arch === 'x64' ? 'x64' : 'ia32', '7za.exe');
+    } else if (platform === 'darwin') {
+        path7za = path.join(prodBasePath, 'mac', arch === 'x64' ? 'x64' : 'arm64  ','7za');
+    } else {
+        path7za = path.join(prodBasePath, 'linux', arch === 'x64' ? 'x64' : 'ia32','7za');
+    }
 }
 
 if (!fs.existsSync(path7za)) {
     throw new Error(`7-Zip binary not found at resolved path: ${path7za}`);
 }
 
+// Make sure it's executable in dev too
+if (process.platform !== 'win32') {
+    fs.chmodSync(path7za, 0o755);
+}
 
 async function downloadToolsWithProgress(mainWindow, userDataPath) {
     const tmpDir = path.join(userDataPath, 'tmp');
