@@ -13,41 +13,21 @@ on:
 jobs:
   create-release:
     runs-on: ubuntu-20.04
-    outputs:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
-      release_id: ${{ steps.create_release.outputs.id }}
-      tag: ${{ steps.tag.outputs.tag }}
     steps:
-      - name: Checkout public repository
-        uses: actions/checkout@v2
-        with:
-          token: ${{ secrets.REPO_AUTH_TOKEN }}
-          repository: ircbloqcc/ircbloq-releases-desktop
-          path: ircbloq-releases-desktop
+      - uses: actions/checkout@v2
 
       - name: Get tag
         id: tag
         uses: dawidd6/action-get-tag@v1
 
-      - name: Create tag in public repository
-        run: |
-          pushd ${{ github.workspace }}/ircbloq-releases-desktop
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git tag ${{ steps.tag.outputs.tag }}
-          git push --tags --porcelain
-          popd
-
       - name: Create Release
         id: create_release
-        uses: ncipollo/release-action@v1
+        uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.REPO_AUTH_TOKEN }}
+          REPO_AUTH_TOKEN: ${{ secrets.REPO_AUTH_TOKEN }}
         with:
-          owner: ircbloqcc
-          repo: ircbloq-releases-desktop
-          tag: ${{ steps.tag.outputs.tag }}
-          name: Release ${{ steps.tag.outputs.tag }}
+          tag_name: ${{ steps.tag.outputs.tag }}
+          release_name: ircBloqV4 Agent ${{ steps.tag.outputs.tag }}
           body: |
             ## Change Log (en)
 
@@ -92,6 +72,7 @@ jobs:
       - name: Build Artifacts
         env:
           GA_ID: ${{ secrets.GA_ID }}
+          GH_TOKEN:  ${{ secrets.REPO_AUTH_TOKEN }}
           NODE_ENV: production
           NODE_OPTIONS: --max_old_space_size=8192
         run: npm run publish
@@ -126,6 +107,7 @@ jobs:
       - name: Build Artifacts
         env:
           GA_ID: ${{ secrets.GA_ID }}
+          GH_TOKEN:  ${{ secrets.REPO_AUTH_TOKEN }}
           NODE_ENV: production
           NODE_OPTIONS: --max_old_space_size=8192
           CSC_IDENTITY_AUTO_DISCOVERY: false
@@ -170,6 +152,7 @@ jobs:
       - name: Build Artifacts
         env:
           GA_ID: ${{ secrets.GA_ID }}
+          GH_TOKEN:  ${{ secrets.REPO_AUTH_TOKEN }}
           NODE_ENV: production
           NODE_OPTIONS: --max_old_space_size=8192
           CSC_IDENTITY_AUTO_DISCOVERY: false
