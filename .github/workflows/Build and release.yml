@@ -24,7 +24,7 @@ jobs:
         id: create_release
         uses: actions/create-release@v1
         env:
-          REPO_AUTH_TOKEN: ${{ secrets.REPO_AUTH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.REPO_AUTH_TOKEN }}
         with:
           tag_name: ${{ steps.tag.outputs.tag }}
           release_name: ircBloqV4 Agent ${{ steps.tag.outputs.tag }}
