@@ -2,9 +2,9 @@
   "name": "ircbloq-agent",
   "productName": "ircBloqV4-Agent",
   "version": "4.2.0",
-  "author": "i-Robochakra Team <mail@irobochakra.com> (https://www.irobochakra.com/)",
   "description": "IrcBloqV4 Agent",
   "main": "src/index.js",
+  "author": "i-Robochakra Team <mail@irobochakra.com> (https://www.irobochakra.com/)",
   "license": "MIT",
   "scripts": {
     "postinstall": "electron-builder install-app-deps",
@@ -15,7 +15,7 @@
     "fetch:firmwares": "rimraf ./firmwares && node ./node_modules/ircbloq-link/script/download-firmwares.js",
     "fetch:tools": "rimraf ./tools && node ./node_modules/ircbloq-link/script/download-tools.js",
     "fetch:static": "rimraf ./static && mkdirp ./static && git clone https://github.com/ircbloqcc/ircbloq-assets.git static && rimraf ./static/.git",
-    "fetch:all": "npm run fetch:drivers && npm run fetch:firmwares && npm run fetch:tools && npm run fetch:static",
+    "fetch:all": "npm run fetch:drivers && npm run fetch:firmwares && npm run fetch:static",
     "start": "electron .",
     "build": "electron-builder",
     "build:dev": "npm run compile && npm run doBuild -- --mode=dev",
@@ -23,8 +23,8 @@
     "build:dist": "npm run compile && npm run doBuild -- --mode=dist",
     "build:publish": "npm run compile && npm run doBuild -- --mode=publish",
     "doBuild": "node ./scripts/electron-builder-wrapper.js",
-    "dist": "npm run clean && npm run fetch:all && npm run build",
-    "dist:ia32": "npm run clean &&  npm run fetch:all && npm run build --ia32",
+    "dist": "npm run clean && npm run fetch:all && npm run doBuild -- --mode=dist",
+    "dist:ia32": "npm run clean && npm run fetch:all && npm run doBuild -- --mode=dist --arch=ia32",
     "publish": "npm run clean && npm run fetch:all  && npm run doBuild -- --mode=publish",
     "publish:ia32": "npm run clean && npm run compile && npm run fetch:all  && npm run doBuild -- --arch=ia32 --mode=publish",
     "test": "npm run test:lint",
@@ -32,27 +32,32 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ircbloqcc/ircbloq-link-desktop.git"
+    "url": "git+https://github.com/ircbloqcc/ircbloq-agent.git"
   },
   "keywords": [
     "ircbloq",
+    "agent",
     "link",
     "scratch3.0",
     "desktop"
   ],
   "bugs": {
-    "url": "https://github.com/ircbloqcc/ircbloq-link-desktop/issues"
+    "url": "https://github.com/ircbloqcc/ircbloq-agent/issues"
   },
-  "homepage": "https://github.com/ircbloqcc/ircbloq-link-desktop#readme",
+  "homepage": "https://github.com/ircbloqcc/ircbloq-agent#readme",
   "dependencies": {
+    "7zip-bin": "^5.2.0",
+    "axios": "^1.8.4",
     "css-loader": "^1.0.1",
     "del": "^6.0.0",
     "download-github-release": "^0.3.2",
     "electron-fetch": "^1.7.4",
     "electron-log": "^4.4.8",
     "electron-updater": "^6.6.2",
+    "extract-zip": "^2.0.1",
     "format-message": "^6.2.3",
     "format-message-cli": "^6.2.3",
+    "fs-extra": "^11.3.0",
     "ircbloq-l10n": "latest",
     "ircbloq-link": "github:ircbloqcc/ircbloq-link#ircbloq-desktop-v4.2.0",
     "node-localstorage": "^2.2.1",

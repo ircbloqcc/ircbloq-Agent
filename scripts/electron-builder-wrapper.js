@@ -72,7 +72,7 @@ const runBuilder = function (wrapperConfig, target) {
             allArgs.push(`--${wrapperConfig.arch}`);
         } else {
             // Default to x64 if no arch specified
-            allArgs.push('--x64');
+            allArgs.push('--x64 --ia32');
         }
     }
     if (!wrapperConfig.doPackage) {

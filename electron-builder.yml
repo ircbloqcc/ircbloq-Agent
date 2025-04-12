@@ -1,7 +1,7 @@
 directories:
   buildResources: buildResources
   output: dist
-extraResources: ["tools", 'firmwares', "statics", "drivers"]
+extraResources: ['firmwares', "statics", "drivers"]
 
 appId: 'ircbloq.cc.ircbloq-agent'
 productName: "ircBloqV4-Agent"

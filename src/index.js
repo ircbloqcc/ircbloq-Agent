@@ -14,12 +14,13 @@ const osLocale = require('os-locale');
 
 const fetch = require('node-fetch');
 const { autoUpdater } = require('electron-updater');
+const axios = require('axios');
 
 const {productName, version} = require('../package.json');
 
 const {JSONStorage} = require('node-localstorage');
 const nodeStorage = new JSONStorage(app.getPath('userData'));
-
+const { downloadToolsWithProgress } = require('../scripts/downloadToolsWithProgress');
 const Menu = electron.Menu;
 const Tray = electron.Tray;
 
@@ -60,27 +61,62 @@ const handleClickLanguage = l => {
 
 makeTrayMenu = (l, checkingUpdate = false) => [
     {
-        label: 'Go to Online IrcBloqV4',
-        click: () => {
-            if (os.platform() === 'win32') {
-                execSync('start https://software.irobochakra.com/');
-            } else if (os.platform() === 'darwin') {
-                execSync('open https://software.irobochakra.com/');
-            }
-        }
+      label: 'Go to Online IrcBloqV4',
+      click: () => {
+          const url = 'https://software.irobochakra.com/';
+          if (os.platform() === 'win32') {
+              execSync(`start ${url}`);
+          } else if (os.platform() === 'darwin') {
+              execSync(`open ${url}`);
+          } else if (os.platform() === 'linux') {
+              execSync(`xdg-open ${url}`);
+          }
+      }
     },
     {
-        label: 'Check for Updates',
-        enabled: !checkingUpdate,
-        click: () => {
-            autoUpdater.checkForUpdates();
-            dialog.showMessageBox({
-                type: 'info',
-                message: 'Checking for updates...',
-                buttons: ['OK']
+    label: 'Check for Updates',
+    enabled: !checkingUpdate,
+    click: () => {
+        autoUpdater.checkForUpdates()
+            .then(result => {
+                if (!result?.updateInfo) {
+                    dialog.showMessageBox({
+                        type: 'info',
+                        message: 'No updates available.'
+                    });
+                }
+            })
+            .catch(err => {
+                dialog.showMessageBox({
+                    type: 'error',
+                    message: 'Failed to check for updates',
+                    detail: err.message
+                });
             });
         }
     },
+    {
+        label: 'Check for Tool Updates',
+        enabled: true,
+        click: async () => {
+          const result = await downloadToolsWithProgress(mainWindow, resourcePath);
+
+          switch (result) {
+            case 'up-to-date':
+              dialog.showMessageBox({
+                type: 'info',
+                message: 'Tools are already up-to-date.',
+              });
+              break;
+            case 'error':
+              dialog.showMessageBox({
+                type: 'error',
+                message: 'Tool update failed. Please check logs or try again.',
+              });
+              break;
+          }
+        }
+      },
     {
         type: 'separator'
     },
@@ -133,6 +169,8 @@ const devToolKey = ((process.platform === 'darwin') ?
     }
 );
 
+
+
 const createWindow = async() => {
     mainWindow = new BrowserWindow({
         icon: path.join(__dirname, './icon/IrcBloq.Agent.ico'),
@@ -142,8 +180,9 @@ const createWindow = async() => {
         resizable: false,
         fullscreenable: false,
         webPreferences: {
-            nodeIntegration: true,
-            enableRemoteModule: true
+          nodeIntegration: true,
+          contextIsolation: false, // Needed for nodeIntegration
+          enableRemoteModule: true
         }
     });
     formatMessage.setup({
@@ -180,6 +219,8 @@ const createWindow = async() => {
     // start link server
     const link = new IrcBloqLink(dataPath, path.join(resourcePath, 'tools'));
     link.listen();
+
+    const status = downloadToolsWithProgress(mainWindow, resourcePath);
 
     if(process.platform !== 'darwin'){
         appTray = new Tray(nativeImage.createFromPath(path.join(__dirname, './icon/IrcBloq-Agent.ico')));
@@ -221,28 +262,33 @@ const createWindow = async() => {
     autoUpdater.checkForUpdatesAndNotify();
 
     autoUpdater.on('update-available', () => {
-      dialog.showMessageBox({
+    dialog.showMessageBox({
         type: 'info',
         title: 'Update Available',
-        message: 'A new version is available. Downloading now...'
-      });
+        message: 'A new version is being downloaded...'
+          });
     });
 
     autoUpdater.on('update-downloaded', () => {
-      dialog.showMessageBox({
-        type: 'info',
-        title: 'Update Ready',
-        message: 'Update downloaded. The app will now restart to apply the update.',
-        buttons: ['Restart']
-      }).then(() => {
-        autoUpdater.quitAndInstall();
-      });
+        dialog.showMessageBox({
+            type: 'info',
+            title: 'Update Ready',
+            message: 'Update downloaded. Restart the application to apply the update.',
+            buttons: ['Restart', 'Later']
+        }).then(({ response }) => {
+            if (response === 0) { // 'Restart' button
+                autoUpdater.quitAndInstall();
+            }
+        });
     });
 
     autoUpdater.on('error', (err) => {
       console.error('Update error:', err);
     });
 
+    autoUpdater.on('error', (err) => {
+    console.error('Update error:', err);
+    });
 
 };
 
