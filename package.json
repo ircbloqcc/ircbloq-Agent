@@ -32,7 +32,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ircbloqcc/ircbloq-agent.git"
+    "url": "git+https://github.com/ircbloqcc/ircbloq-link-releases.git"
   },
   "keywords": [
     "ircbloq",
@@ -42,9 +42,9 @@
     "desktop"
   ],
   "bugs": {
-    "url": "https://github.com/ircbloqcc/ircbloq-agent/issues"
+    "url": "https://github.com/ircbloqcc/ircbloq-link-releases/issues"
   },
-  "homepage": "https://github.com/ircbloqcc/ircbloq-agent#readme",
+  "homepage": "https://github.com/ircbloqcc/ircbloq-link-releases#readme",
   "dependencies": {
     "7zip-bin": "^5.2.0",
     "axios": "^1.8.4",
