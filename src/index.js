@@ -6,6 +6,7 @@ const os = require('os');
 const {execFile,spawn,execSync} = require('child_process');
 const fs = require('fs-extra');
 
+
 const IrcBloqLink = require('ircbloq-link');
 
 const formatMessage = require('format-message');
@@ -33,6 +34,16 @@ let resourceServer;
 let resourcePath;
 let dataPath;
 let makeTrayMenu = () => {};
+const userDataPath = electron.app.getPath('userData');
+dataPath = path.join(userDataPath, 'Data');
+
+const versionFilePath = path.join(userDataPath,'tools', 'version');
+let toolsVersion;
+if(fs.existsSync(versionFilePath)){
+  toolsVersion = fs.readFileSync(versionFilePath, 'utf8').trim();
+}
+const appPath = app.getAppPath();
+const appVersion = app.getVersion();
 
 // suppress deprecation warning; this will be the default in Electron 9
 app.allowRendererProcessReuse = true;
@@ -115,7 +126,7 @@ makeTrayMenu = (l, checkingUpdate = false) => [
         label: 'Check for Tool Updates',
         enabled: true,
         click: async () => {
-          const result = await downloadToolsWithProgress(mainWindow, resourcePath);
+          const result = await downloadToolsWithProgress(mainWindow, userDataPath);
 
           switch (result) {
             case 'up-to-date':
@@ -151,7 +162,6 @@ makeTrayMenu = (l, checkingUpdate = false) => [
             } else if ((os.platform() === 'darwin')) {
                 spawn('sh', ['install.sh'], { shell: true, cwd: driverPath });
             } else if ((os.platform() === 'linux')) {
-                console.log(productName);
                 sudo.exec(`sh ${path.join(driverPath, 'linux_setup.sh')} yang`, {name: productName},
                     error => {
                         if (error) throw error;
@@ -234,10 +244,6 @@ const createWindow = async() => {
         }
     });
 
-    const userDataPath = electron.app.getPath('userData');
-    dataPath = path.join(userDataPath, 'Data');
-    const appPath = app.getAppPath();
-    const appVersion = app.getVersion();
 
     if (appPath.search(/app.asar/g) === -1) {
         resourcePath = path.join(appPath);
@@ -246,10 +252,8 @@ const createWindow = async() => {
     }
 
     // start link server
-    const link = new IrcBloqLink(dataPath, path.join(resourcePath, 'tools'));
+    const link = new IrcBloqLink(dataPath, path.join(userDataPath, 'tools'), path.join(resourcePath, 'firmwares'));
     link.listen();
-
-    const status = downloadToolsWithProgress(mainWindow, resourcePath);
 
     const iconPath = process.platform === 'win32'
     ? path.join(__dirname, './icon/IrcBloq-Agent.ico')
@@ -275,12 +279,20 @@ const createWindow = async() => {
 
 	    // generate product information.
     await webContents.once('dom-ready', () => {
+          if(typeof toolsVersion === 'undefined'){
+            dialog.showMessageBox({
+                type: 'info',
+                message: 'Tools folder is not available. update the tools first!'
+            });
+          }
+        const status = downloadToolsWithProgress(mainWindow, userDataPath);
         const electronVersion = process.versions['electron'.toLowerCase()];
         const chromeVersion = process.versions['chrome'.toLowerCase()];
         mainWindow.webContents.executeJavaScript(
-            `document.getElementById("product-name").innerHTML = "${productName}";
-            document.getElementById("product-version").innerHTML = "App Version ${version}";
-            document.getElementById("electron-version").innerHTML = "Electron ${electronVersion}";
+            `document.getElementById("product-name").innerHTML = "${productName} v${version}";
+            document.getElementById("title").innerHTML = "${productName} - v${version}";
+            document.getElementById("tools-version").innerHTML = "Tools: ${toolsVersion}";
+            document.getElementById("electron-version").innerHTML = "electron ${electronVersion}";
             document.getElementById("chrome-version").innerHTML = "Chrome ${chromeVersion}";`
         );
     });

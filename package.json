@@ -59,7 +59,7 @@
     "format-message-cli": "^6.2.3",
     "fs-extra": "^11.3.0",
     "ircbloq-l10n": "latest",
-    "ircbloq-link": "github:ircbloqcc/ircbloq-link#ircbloq-desktop-v4.2.0",
+    "ircbloq-link": "github:ircbloqcc/ircbloq-link#ircbloq-agent-v4.2.1",
     "node-localstorage": "^2.2.1",
     "os-locale": "^5.0.0",
     "postinstall": "^0.7.4",

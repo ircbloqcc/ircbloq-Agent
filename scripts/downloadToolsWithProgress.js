@@ -35,11 +35,6 @@ if (!fs.existsSync(path7za)) {
     throw new Error(`7-Zip binary not found at resolved path: ${path7za}`);
 }
 
-// Make sure it's executable in dev too
-if (process.platform !== 'win32') {
-    fs.chmodSync(path7za, 0o755);
-}
-
 async function downloadToolsWithProgress(mainWindow, userDataPath) {
     const tmpDir = path.join(userDataPath, 'tmp');
     const toolExtractDir = path.join(userDataPath, 'tools');
@@ -47,7 +42,8 @@ async function downloadToolsWithProgress(mainWindow, userDataPath) {
     try {
         mainWindow.webContents.send('download-status', 'Checking for tool updates...');
 
-        const { data } = await axios.get(releaseApiUrl);
+        const { data } = await retryAxiosGet(releaseApiUrl);
+        const toolsVersion = data.tag_name;
         const assets = data.assets.filter(asset =>
             asset.name.endsWith('.7z') && asset.name.includes(systemPlatform)
         );
@@ -62,7 +58,7 @@ async function downloadToolsWithProgress(mainWindow, userDataPath) {
         );
         if (checksumAsset) {
             mainWindow.webContents.send('download-status', 'Fetching checksum file...');
-            const res = await axios.get(checksumAsset.browser_download_url);
+            const res = await retryAxiosGet(checksumAsset.browser_download_url);
             res.data.split('\n').forEach(line => {
               const [checksum, filename] = line.trim().split(/\s+/);
                 if (filename) checksums[filename] = checksum;
@@ -75,6 +71,7 @@ async function downloadToolsWithProgress(mainWindow, userDataPath) {
           const filePath = path.join(tmpDir, fileName);
           const expectedChecksum = checksums[fileName] || null;
           const checksumFilePath = path.join(toolExtractDir, 'checksum.txt');
+          const versionFilePath = path.join(toolExtractDir, 'version');
           if (fs.existsSync(toolExtractDir) && fs.existsSync(checksumFilePath)) {
               const existingChecksum = fs.readFileSync(checksumFilePath, 'utf8').trim();
               if (existingChecksum === expectedChecksum) {
@@ -109,9 +106,9 @@ async function downloadToolsWithProgress(mainWindow, userDataPath) {
               status: 'starting'
           });
 
-          const { headers } = await axios.head(fileUrl);
+          const { headers } = await retryAxiosHead(fileUrl);
           const fileSize = parseInt(headers['content-length'], 10);
-          const res = await axios.get(fileUrl, { responseType: 'stream' });
+          const res = await retryAxiosGet(fileUrl, { responseType: 'stream' });
           const writer = fs.createWriteStream(filePath);
 
           let downloaded = 0;
@@ -140,6 +137,7 @@ async function downloadToolsWithProgress(mainWindow, userDataPath) {
 
           // Save checksum after extraction
           fs.writeFileSync(checksumFilePath, expectedChecksum, 'utf8');
+          fs.writeFileSync(versionFilePath, toolsVersion, 'utf8');
           mainWindow.webContents.send('download-progress', {
               fileName,
               progress: 100,
@@ -149,6 +147,9 @@ async function downloadToolsWithProgress(mainWindow, userDataPath) {
 
         mainWindow.webContents.send('download-complete');
         fs.rmSync(tmpDir, { recursive: true, force: true });
+        mainWindow.webContents.executeJavaScript(
+            `document.getElementById("tools-version").innerHTML = "Tools: ${toolsVersion}";`
+        );
         return 'download-complete';
 
     } catch (error) {
@@ -162,6 +163,31 @@ async function downloadToolsWithProgress(mainWindow, userDataPath) {
         return 'error';
     }
 }
+
+async function retryAxiosGet(url, config = {}, maxRetries = 5, delayMs = 1000) {
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        console.log("get attempt = ", attempt);
+        try {
+            return await axios.get(url, { timeout: 5000, ...config });
+        } catch (error) {
+            if (attempt === maxRetries) throw error;
+            await new Promise(resolve => setTimeout(resolve, delayMs));
+        }
+    }
+}
+
+async function retryAxiosHead(url, maxRetries = 5, delayMs = 1000) {
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        console.log("head attempt = ", attempt);
+        try {
+            return await axios.head(url);
+        } catch (error) {
+            if (attempt === maxRetries) throw error;
+            await new Promise(resolve => setTimeout(resolve, delayMs));
+        }
+    }
+}
+
 
 // Extraction helper
 function extract7zFile(filePath, fileName, outputDir, mainWindow) {

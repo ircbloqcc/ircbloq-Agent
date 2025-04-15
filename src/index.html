@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>ircBloqV4-Agent</title>
+    <title id='title'>ircBloqV4-Agent</title>
     <link rel="stylesheet" type="text/css" href="index.css">
     <style>
         body {
@@ -20,14 +20,16 @@
 
         .app {
             text-align: center;
-            max-width: 500px;
-            padding: 20px;
         }
 
         .logo {
             width: 150px;
             height: 150px;
-            margin-bottom: 20px;
+            max-width: 7rem;
+            max-height: 7rem;
+            display: table-cell;
+            text-align: center;
+            margin: auto;
         }
 
         .info {
@@ -108,11 +110,11 @@
             <img class="logo" alt="IrcBloq-Agent" src="./icon/IrcBloq-Agent.svg">
         </div>
         <div class="info">
-            <h2 id="product-name">ircBloqV4-Agent</h2>
+            <h3 id="product-name">ircBloqV4-Agent</h3>
             <div class="version">
-                <div id="product-version">App Version 0.0.0</div>
+                <div id="tools-version">Tools - v0.0.0</div>
                 <div class="component-version">
-                    <p id="electron-version">Electron 0.0.0</p>
+                    <h4 id="electron-version">Electron 0.0.0</h4>
                     <p id="chrome-version">Chrome 00.0.0000.000</p>
                 </div>
             </div>
