@@ -1,7 +1,7 @@
 {
   "name": "ircbloq-agent",
   "productName": "ircBloqV4 Agent",
-  "version": "4.2.2",
+  "version": "4.3.0",
   "description": "IrcBloqV4 Agent",
   "main": "src/index.js",
   "author": "i-Robochakra Team <mail@irobochakra.com> (https://www.irobochakra.com/)",
@@ -59,7 +59,7 @@
     "format-message-cli": "^6.2.3",
     "fs-extra": "^11.3.0",
     "ircbloq-l10n": "latest",
-    "ircbloq-link": "github:ircbloqcc/ircbloq-link#ircbloq-agent-v4.2.1",
+    "ircbloq-link": "github:ircbloqcc/ircbloq-link#ircbloq-agent-v4.3.0",
     "node-localstorage": "^2.2.1",
     "os-locale": "^5.0.0",
     "postinstall": "^0.7.4",
