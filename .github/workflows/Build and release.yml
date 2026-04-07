@@ -140,6 +140,12 @@ jobs:
           chmod +x node_modules/7zip-bin/mac/arm64/7za || true
           chmod +x node_modules/7zip-bin/mac/x64/7za || true
 
+      - name: Link Python for Electron Builder
+        run: |
+          sudo ln -sf $(which python3) /usr/local/bin/python
+          # Also link to /usr/bin if needed, though /usr/local/bin usually suffices
+          echo "PYTHON_PATH=$(which python3)" >> $GITHUB_ENV
+
       - name: Build Artifacts
         env:
           GA_ID: ${{ secrets.GA_ID }}
