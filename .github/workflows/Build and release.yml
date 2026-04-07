@@ -135,6 +135,11 @@ jobs:
       - name: Install Dependencies
         run: npm install --legacy-peer-deps
 
+      - name: Patch dmgbuild for Python 3   # ← ADD THIS
+        run: |
+          sed -i '' 's/reload(sys)/from importlib import reload; reload(sys)/g' \
+            node_modules/dmg-builder/vendor/dmgbuild/core.py
+
       - name: Fix 7zip Permissions
         run: |
           chmod +x node_modules/7zip-bin/mac/arm64/7za || true
