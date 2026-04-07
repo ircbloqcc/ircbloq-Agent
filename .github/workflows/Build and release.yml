@@ -106,48 +106,45 @@ jobs:
 
   build-mac:
     needs: create-release
-    runs-on: macos-12
+    runs-on: macos-latest
+
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           persist-credentials: false
 
-      - name: Use Node.js
-        uses: actions/setup-node@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: '16.x'
+          node-version: '18'
 
-      - name: Install Python 2.7
-        run: |
-          brew install pyenv
-          pyenv install 2.7.18
-          pyenv global 2.7.18
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Cache npm
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
 
       - name: Configure GitHub Token
         run: git config --global url."https://${{ secrets.REPO_AUTH_TOKEN }}@github.com/".insteadOf ssh://git@github.com/
 
       - name: Install Dependencies
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan github.com >> ~/.ssh/known_hosts
-          pip install setuptools
-          npm i --legacy-peer-deps
+        run: npm install --legacy-peer-deps
 
       - name: Fix 7zip Permissions
         run: |
-          chmod +x node_modules/7zip-bin/mac/arm64/7za
-          chmod +x ./node_modules/7zip-bin/mac/x64/7za
+          chmod +x node_modules/7zip-bin/mac/arm64/7za || true
+          chmod +x node_modules/7zip-bin/mac/x64/7za || true
 
       - name: Build Artifacts
         env:
           GA_ID: ${{ secrets.GA_ID }}
-          GH_TOKEN:  ${{ secrets.REPO_AUTH_TOKEN }}
+          GH_TOKEN: ${{ secrets.REPO_AUTH_TOKEN }}
           NODE_ENV: production
           NODE_OPTIONS: --max_old_space_size=8192
           CSC_IDENTITY_AUTO_DISCOVERY: false
-          PYTHON_PATH: python
-        run: |
-          export PYTHON_PATH=$(pyenv root)/shims/python
-          npm run publish
+        run: npm run publish
