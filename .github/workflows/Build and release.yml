@@ -13,6 +13,7 @@ on:
 jobs:
   create-release:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
@@ -23,9 +24,11 @@ jobs:
           name: ircBloqV4 Agent ${{ github.ref_name }}
           body: |
             ## Change Log (en)
+
             - **New feature**
               1. Feature 1.
               2. Feature 2.
+
             - **Fix bug**
               1. Bug 1.
               2. Bug 2.
@@ -37,6 +40,7 @@ jobs:
   build-windows:
     needs: create-release
     runs-on: windows-latest
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -70,6 +74,7 @@ jobs:
   build-linux:
     needs: create-release
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -106,43 +111,34 @@ jobs:
 
   build-mac:
     needs: create-release
-    runs-on: macos-13
+    runs-on: macos-latest
+
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
 
-      - name: Use Node.js
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '16.x'
+          node-version: 18
 
-      - name: Install Python 2.7
-        run: |
-          brew install pyenv
-          pyenv install 2.7.18
-          pyenv global 2.7.18
-          echo "$(pyenv root)/shims" >> $GITHUB_PATH   # ← makes 'python' resolve globally
-
-      - name: Verify Python Version
-        run: python --version   # ← should print Python 2.7.18
+      - name: Cache npm
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
 
       - name: Configure GitHub Token
         run: git config --global url."https://${{ secrets.REPO_AUTH_TOKEN }}@github.com/".insteadOf ssh://git@github.com/
 
       - name: Install Dependencies
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan github.com >> ~/.ssh/known_hosts
-          pip install setuptools
-          npm i --legacy-peer-deps
+        run: npm i --legacy-peer-deps
 
       - name: Fix 7zip Permissions
         run: |
-          chmod +x node_modules/7zip-bin/mac/x64/7za || true
-          chmod +x node_modules/7zip-bin/mac/arm64/7za || true
+          chmod +x node_modules/7zip-bin/mac/arm64/7za
+          chmod +x node_modules/7zip-bin/mac/x64/7za
 
       - name: Build Artifacts
         env:
@@ -151,4 +147,4 @@ jobs:
           NODE_ENV: production
           NODE_OPTIONS: --max_old_space_size=8192
           CSC_IDENTITY_AUTO_DISCOVERY: false
-        run: npm run publish   # no need to manually set PYTHON_PATH
+        run: npm run publish
