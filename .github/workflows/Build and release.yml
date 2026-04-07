@@ -106,53 +106,48 @@ jobs:
 
   build-mac:
     needs: create-release
-    runs-on: macos-latest
+    runs-on: macos-13
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v2
         with:
           persist-credentials: false
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v2
         with:
-          node-version: 18
+          node-version: '16.x'
 
-      # Fix for: spawn /usr/bin/python ENOENT
-      - name: Fix Python Path for macOS
+      - name: Install Python 2.7
         run: |
-          # Create a local bin folder
-          mkdir -p $HOME/bin
-          # Link python3 to the name 'python' so old scripts find it
-          ln -s $(which python3) $HOME/bin/python
-          # Add this folder to the system PATH for the rest of the job
-          echo "$HOME/bin" >> $GITHUB_PATH
-          
-      - name: Cache npm
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          brew install pyenv
+          pyenv install 2.7.18
+          pyenv global 2.7.18
 
       - name: Configure GitHub Token
         run: git config --global url."https://${{ secrets.REPO_AUTH_TOKEN }}@github.com/".insteadOf ssh://git@github.com/
 
       - name: Install Dependencies
-        # We use an env var here instead of npm config
-        env:
-          PYTHON: python3
-        run: npm i --legacy-peer-deps
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          pip install setuptools
+          npm i --legacy-peer-deps
 
       - name: Fix 7zip Permissions
         run: |
-          chmod +x node_modules/7zip-bin/mac/arm64/7za || true
-          chmod +x node_modules/7zip-bin/mac/x64/7za || true
+          chmod +x node_modules/7zip-bin/mac/arm64/7za
+          chmod +x ./node_modules/7zip-bin/mac/x64/7za
 
       - name: Build Artifacts
         env:
           GA_ID: ${{ secrets.GA_ID }}
-          GH_TOKEN: ${{ secrets.REPO_AUTH_TOKEN }}
+          GH_TOKEN:  ${{ secrets.REPO_AUTH_TOKEN }}
           NODE_ENV: production
           NODE_OPTIONS: --max_old_space_size=8192
           CSC_IDENTITY_AUTO_DISCOVERY: false
-          PYTHON: python3
-        run: npm run publish
+          PYTHON_PATH: python
+        run: |
+          export PYTHON_PATH=$(pyenv root)/shims/python
+          npm run publish
