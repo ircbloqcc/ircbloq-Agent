@@ -128,9 +128,6 @@ jobs:
         run: |
           sudo ln -s $(which python3) /usr/bin/python || true
 
-      - name: Set Python for node-gyp
-        run: npm config set python $(which python3)
-
       - name: Cache npm
         uses: actions/cache@v3
         with:
@@ -155,4 +152,5 @@ jobs:
           NODE_ENV: production
           NODE_OPTIONS: --max_old_space_size=8192
           CSC_IDENTITY_AUTO_DISCOVERY: false
+          PYTHON: python3 
         run: npm run publish
