@@ -1,4 +1,4 @@
-name: Build and release
+name: Build and Release
 
 on:
   push:
@@ -7,99 +7,95 @@ on:
     paths-ignore:
       - 'README.md'
       - 'CHANGE.md'
-      - 'doc/*'
-      - '.github/*'
+      - 'doc/**'
+      - '.github/**'
 
 jobs:
   create-release:
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v2
+    runs-on: ubuntu-latest
 
-      - name: Get tag
-        id: tag
-        uses: dawidd6/action-get-tag@v1
+    steps:
+      - uses: actions/checkout@v4
 
       - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.REPO_AUTH_TOKEN }}
+        uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ steps.tag.outputs.tag }}
-          release_name: ircBloqV4 Agent ${{ steps.tag.outputs.tag }}
+          tag_name: ${{ github.ref_name }}
+          name: ircBloqV4 Agent ${{ github.ref_name }}
           body: |
             ## Change Log (en)
 
             - **New feature**
-
-                1. Feature 1.
-                2. Feature 2.
+              1. Feature 1.
+              2. Feature 2.
 
             - **Fix bug**
-
-                1. Bug 1.
-                2. Bug 2.
+              1. Bug 1.
+              2. Bug 2.
           draft: true
           prerelease: false
-          token:  ${{ secrets.REPO_AUTH_TOKEN }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.REPO_AUTH_TOKEN }}
 
   build-windows:
     needs: create-release
-    runs-on: windows-2019
+    runs-on: windows-latest
+
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           persist-credentials: false
 
-      - name: Use Node.js
-        uses: actions/setup-node@v2
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          node-version: '18.x'
+          node-version: 18
+
+      - name: Cache npm
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
 
       - name: Configure GitHub Token
         run: git config --global url."https://${{ secrets.REPO_AUTH_TOKEN }}@github.com/".insteadOf ssh://git@github.com/
 
       - name: Install Dependencies
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan github.com >> ~/.ssh/known_hosts
-          npm config set engine-strict false
-          npm i --legacy-peer-deps
+        run: npm ci --legacy-peer-deps
 
       - name: Build Artifacts
         env:
           GA_ID: ${{ secrets.GA_ID }}
-          GH_TOKEN:  ${{ secrets.REPO_AUTH_TOKEN }}
+          GH_TOKEN: ${{ secrets.REPO_AUTH_TOKEN }}
           NODE_ENV: production
           NODE_OPTIONS: --max_old_space_size=8192
         run: npm run publish
 
   build-linux:
     needs: create-release
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           persist-credentials: false
 
-      - name: Use Node.js
-        uses: actions/setup-node@v2
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          node-version: '18.x'
+          node-version: 18
+
+      - name: Cache npm
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
 
       - name: Configure GitHub Token
         run: git config --global url."https://${{ secrets.REPO_AUTH_TOKEN }}@github.com/".insteadOf ssh://git@github.com/
 
       - name: Install Dependencies
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan github.com >> ~/.ssh/known_hosts
-          npm i --legacy-peer-deps
+        run: npm ci --legacy-peer-deps
 
       - name: Fix 7zip Permissions
         run: chmod +x node_modules/7zip-bin/linux/x64/7za
@@ -107,7 +103,7 @@ jobs:
       - name: Build Artifacts
         env:
           GA_ID: ${{ secrets.GA_ID }}
-          GH_TOKEN:  ${{ secrets.REPO_AUTH_TOKEN }}
+          GH_TOKEN: ${{ secrets.REPO_AUTH_TOKEN }}
           NODE_ENV: production
           NODE_OPTIONS: --max_old_space_size=8192
           CSC_IDENTITY_AUTO_DISCOVERY: false
@@ -115,48 +111,40 @@ jobs:
 
   build-mac:
     needs: create-release
-    runs-on: macos-13
+    runs-on: macos-latest
+
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           persist-credentials: false
 
-      - name: Use Node.js
-        uses: actions/setup-node@v2
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          node-version: '16.x'
+          node-version: 18
 
-      - name: Install Python 2.7
-        run: |
-          brew install pyenv
-          pyenv install 2.7.18
-          pyenv global 2.7.18
+      - name: Cache npm
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
 
       - name: Configure GitHub Token
         run: git config --global url."https://${{ secrets.REPO_AUTH_TOKEN }}@github.com/".insteadOf ssh://git@github.com/
 
       - name: Install Dependencies
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan github.com >> ~/.ssh/known_hosts
-          pip install setuptools
-          npm i --legacy-peer-deps
+        run: npm ci --legacy-peer-deps
 
       - name: Fix 7zip Permissions
         run: |
           chmod +x node_modules/7zip-bin/mac/arm64/7za
-          chmod +x ./node_modules/7zip-bin/mac/x64/7za
+          chmod +x node_modules/7zip-bin/mac/x64/7za
 
       - name: Build Artifacts
         env:
           GA_ID: ${{ secrets.GA_ID }}
-          GH_TOKEN:  ${{ secrets.REPO_AUTH_TOKEN }}
+          GH_TOKEN: ${{ secrets.REPO_AUTH_TOKEN }}
           NODE_ENV: production
           NODE_OPTIONS: --max_old_space_size=8192
           CSC_IDENTITY_AUTO_DISCOVERY: false
-          PYTHON_PATH: python
-        run: |
-          export PYTHON_PATH=$(pyenv root)/shims/python
-          npm run publish
+        run: npm run publish
