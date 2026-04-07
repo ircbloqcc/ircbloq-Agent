@@ -106,50 +106,43 @@ jobs:
 
   build-mac:
     needs: create-release
-    runs-on: macos-latest
-
+    runs-on: macos-13
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
 
-      - name: Setup Node.js
+      - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '16.x'
 
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
+      - name: Install Python 2.7
+        run: |
+          brew install pyenv
+          pyenv install 2.7.18
+          pyenv global 2.7.18
+          echo "$(pyenv root)/shims" >> $GITHUB_PATH   # ← makes 'python' resolve globally
 
-      - name: Cache npm
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+      - name: Verify Python Version
+        run: python --version   # ← should print Python 2.7.18
 
       - name: Configure GitHub Token
         run: git config --global url."https://${{ secrets.REPO_AUTH_TOKEN }}@github.com/".insteadOf ssh://git@github.com/
 
       - name: Install Dependencies
-        run: npm install --legacy-peer-deps
-
-      - name: Patch dmgbuild for Python 3   # ← ADD THIS
         run: |
-          sed -i '' 's/reload(sys)/from importlib import reload; reload(sys)/g' \
-            node_modules/dmg-builder/vendor/dmgbuild/core.py
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          pip install setuptools
+          npm i --legacy-peer-deps
 
       - name: Fix 7zip Permissions
         run: |
-          chmod +x node_modules/7zip-bin/mac/arm64/7za || true
           chmod +x node_modules/7zip-bin/mac/x64/7za || true
-
-      - name: Link Python for Electron Builder
-        run: |
-          sudo ln -sf $(which python3) /usr/local/bin/python
-          # Also link to /usr/bin if needed, though /usr/local/bin usually suffices
-          echo "PYTHON_PATH=$(which python3)" >> $GITHUB_ENV
+          chmod +x node_modules/7zip-bin/mac/arm64/7za || true
 
       - name: Build Artifacts
         env:
@@ -158,4 +151,4 @@ jobs:
           NODE_ENV: production
           NODE_OPTIONS: --max_old_space_size=8192
           CSC_IDENTITY_AUTO_DISCOVERY: false
-        run: npm run publish
+        run: npm run publish   # no need to manually set PYTHON_PATH
