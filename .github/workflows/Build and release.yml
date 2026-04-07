@@ -13,7 +13,6 @@ on:
 jobs:
   create-release:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
@@ -24,11 +23,9 @@ jobs:
           name: ircBloqV4 Agent ${{ github.ref_name }}
           body: |
             ## Change Log (en)
-
             - **New feature**
               1. Feature 1.
               2. Feature 2.
-
             - **Fix bug**
               1. Bug 1.
               2. Bug 2.
@@ -40,7 +37,6 @@ jobs:
   build-windows:
     needs: create-release
     runs-on: windows-latest
-
     steps:
       - uses: actions/checkout@v4
         with:
@@ -74,7 +70,6 @@ jobs:
   build-linux:
     needs: create-release
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
         with:
@@ -112,7 +107,6 @@ jobs:
   build-mac:
     needs: create-release
     runs-on: macos-latest
-
     steps:
       - uses: actions/checkout@v4
         with:
@@ -123,10 +117,14 @@ jobs:
         with:
           node-version: 18
 
-      # 🔴 FIX for your error
-      - name: Fix Python path
+      # Fix for: spawn /usr/bin/python ENOENT
+      - name: Fix Python Path for macOS
         run: |
-          sudo ln -s $(which python3) /usr/bin/python || true
+          mkdir -p $HOME/bin
+          ln -s $(which python3) $HOME/bin/python
+          echo "$HOME/bin" >> $GITHUB_PATH
+          # Link for node-gyp and electron-builder specifically
+          npm config set python python3
 
       - name: Cache npm
         uses: actions/cache@v3
@@ -142,8 +140,8 @@ jobs:
 
       - name: Fix 7zip Permissions
         run: |
-          chmod +x node_modules/7zip-bin/mac/arm64/7za
-          chmod +x node_modules/7zip-bin/mac/x64/7za
+          chmod +x node_modules/7zip-bin/mac/arm64/7za || true
+          chmod +x node_modules/7zip-bin/mac/x64/7za || true
 
       - name: Build Artifacts
         env:
@@ -152,5 +150,5 @@ jobs:
           NODE_ENV: production
           NODE_OPTIONS: --max_old_space_size=8192
           CSC_IDENTITY_AUTO_DISCOVERY: false
-          PYTHON: python3 
+          PYTHON: python3
         run: npm run publish
