@@ -120,12 +120,13 @@ jobs:
       # Fix for: spawn /usr/bin/python ENOENT
       - name: Fix Python Path for macOS
         run: |
+          # Create a local bin folder
           mkdir -p $HOME/bin
+          # Link python3 to the name 'python' so old scripts find it
           ln -s $(which python3) $HOME/bin/python
+          # Add this folder to the system PATH for the rest of the job
           echo "$HOME/bin" >> $GITHUB_PATH
-          # Link for node-gyp and electron-builder specifically
-          npm config set python python3
-
+          
       - name: Cache npm
         uses: actions/cache@v3
         with:
@@ -136,6 +137,9 @@ jobs:
         run: git config --global url."https://${{ secrets.REPO_AUTH_TOKEN }}@github.com/".insteadOf ssh://git@github.com/
 
       - name: Install Dependencies
+        # We use an env var here instead of npm config
+        env:
+          PYTHON: python3
         run: npm i --legacy-peer-deps
 
       - name: Fix 7zip Permissions
